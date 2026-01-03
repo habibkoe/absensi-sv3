@@ -24,6 +24,8 @@ export interface Attendance {
   class_room_id: string;
   attendance_status: number;
   date: string;
+  is_auto_score?: boolean;
+  score_nominal?: number;
   created_at: string;
 }
 

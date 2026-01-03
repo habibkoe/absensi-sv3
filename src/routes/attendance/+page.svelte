@@ -10,6 +10,8 @@
   let selectedClassroom = '';
   let selectedDate = new Date().toISOString().split('T')[0];
   let attendanceRecords: Map<string, number> = new Map();
+  let autoScoreRecords: Map<string, boolean> = new Map();
+  let scoreNominalRecords: Map<string, number> = new Map();
   let loading = false;
   let saving = false;
   let error = '';
@@ -54,11 +56,20 @@
 
       if (attendanceError) throw attendanceError;
 
-      // Populate attendance map
+      // Populate attendance map and score data
       attendanceRecords = new Map();
+      autoScoreRecords = new Map();
+      scoreNominalRecords = new Map();
+      
       if (attendanceData) {
         attendanceData.forEach((record: Attendance) => {
           attendanceRecords.set(record.student_id, record.attendance_status);
+          if (record.is_auto_score !== undefined) {
+            autoScoreRecords.set(record.student_id, record.is_auto_score);
+          }
+          if (record.score_nominal !== undefined) {
+            scoreNominalRecords.set(record.student_id, record.score_nominal);
+          }
         });
       }
 
@@ -71,6 +82,8 @@
 
       // Trigger reactivity
       attendanceRecords = attendanceRecords;
+      autoScoreRecords = autoScoreRecords;
+      scoreNominalRecords = scoreNominalRecords;
     } catch (err) {
       console.error('Error loading data:', err);
       error = 'Failed to load students and attendance records';
@@ -81,7 +94,28 @@
 
   function setAttendance(studentId: string, status: number) {
     attendanceRecords.set(studentId, status);
+    
+    // Clear score data if not Tugas
+    if (status !== AttendanceStatus.Tugas) {
+      autoScoreRecords.delete(studentId);
+      scoreNominalRecords.delete(studentId);
+    }
+    
     attendanceRecords = attendanceRecords;
+  }
+  
+  function toggleAutoScore(studentId: string, value: boolean) {
+    autoScoreRecords.set(studentId, value);
+    if (value) {
+      scoreNominalRecords.set(studentId, 100);
+    }
+    autoScoreRecords = autoScoreRecords;
+    scoreNominalRecords = scoreNominalRecords;
+  }
+  
+  function updateScoreNominal(studentId: string, value: number) {
+    scoreNominalRecords.set(studentId, value);
+    scoreNominalRecords = scoreNominalRecords;
   }
 
   function markAllAs(status: number) {
@@ -101,13 +135,34 @@
     error = '';
 
     try {
-      // Prepare attendance records
-      const records = students.map(student => ({
-        student_id: student.id,
-        class_room_id: selectedClassroom,
-        attendance_status: attendanceRecords.get(student.id) || AttendanceStatus.Hadir,
-        date: selectedDate
-      }));
+      // Prepare attendance records with score data
+      const records = students.map(student => {
+        const status = attendanceRecords.get(student.id) || AttendanceStatus.Hadir;
+        const record: any = {
+          student_id: student.id,
+          class_room_id: selectedClassroom,
+          attendance_status: status,
+          date: selectedDate
+        };
+        
+        // Add score data only if status is Tugas
+        if (status === AttendanceStatus.Tugas) {
+          const isAutoScore = autoScoreRecords.get(student.id) || false;
+          record.is_auto_score = isAutoScore;
+          
+          if (isAutoScore) {
+            record.score_nominal = 100;
+          } else {
+            const manualScore = scoreNominalRecords.get(student.id);
+            record.score_nominal = manualScore !== undefined ? manualScore : null;
+          }
+        } else {
+          record.is_auto_score = false;
+          record.score_nominal = null;
+        }
+        
+        return record;
+      });
 
       // Delete existing records for this classroom and date
       const { error: deleteError } = await supabase
@@ -352,7 +407,7 @@
                 >
                   Bolos
                 </button>
-                {#if !attendanceRecords.get(student.id) || attendanceRecords.get(student.id) === AttendanceStatus.Hadir}
+                {#if attendanceRecords.get(student.id) === AttendanceStatus.Hadir || attendanceRecords.get(student.id) === AttendanceStatus.Tugas}
                   <button
                     on:click={() => setAttendance(student.id, AttendanceStatus.Tugas)}
                     class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Tugas
@@ -364,6 +419,49 @@
                 {/if}
               </div>
             </div>
+            
+            <!-- Score Input UI for Tugas Status -->
+            {#if attendanceRecords.get(student.id) === AttendanceStatus.Tugas}
+              <div class="p-4 mt-2 ml-16 border-l-4 border-purple-500 rounded-r-lg bg-purple-50">
+                <h3 class="mb-3 text-sm font-semibold text-purple-900">Nilai Tugas</h3>
+                
+                <div class="flex items-center mb-3">
+                  <input
+                    type="checkbox"
+                    id="auto-score-{student.id}"
+                    checked={autoScoreRecords.get(student.id) || false}
+                    on:change={(e) => toggleAutoScore(student.id, e.currentTarget.checked)}
+                    class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  />
+                  <label for="auto-score-{student.id}" class="ml-2 text-sm font-medium text-gray-700">
+                    Auto Score (100)
+                  </label>
+                </div>
+                
+                {#if !autoScoreRecords.get(student.id)}
+                  <div>
+                    <label for="score-{student.id}" class="block mb-1 text-sm font-medium text-gray-700">
+                      Masukkan Nilai (0-100)
+                    </label>
+                    <input
+                      type="number"
+                      id="score-{student.id}"
+                      min="0"
+                      max="100"
+                      step="0.5"
+                      value={scoreNominalRecords.get(student.id) || ''}
+                      on:input={(e) => updateScoreNominal(student.id, parseFloat(e.currentTarget.value) || 0)}
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="Masukkan nilai..."
+                    />
+                  </div>
+                {:else}
+                  <div class="px-3 py-2 text-sm font-semibold text-purple-900 bg-purple-200 rounded-lg">
+                    Nilai: 100 (Otomatis)
+                  </div>
+                {/if}
+              </div>
+            {/if}
           {/each}
         </div>
       </div>

@@ -40,6 +40,8 @@ CREATE TABLE attendance (
   class_room_id UUID NOT NULL REFERENCES master_class_room(id) ON DELETE CASCADE,
   attendance_status INTEGER NOT NULL DEFAULT 1,
   date DATE NOT NULL,
+  is_auto_score BOOLEAN DEFAULT false,
+  score_nominal DECIMAL(5,2),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(student_id, date) -- Prevent duplicate attendance entries for same student on same day
 );
