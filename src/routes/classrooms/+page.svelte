@@ -8,7 +8,7 @@
   let loading = true;
   let showModal = false;
   let editingClassroom: Classroom | null = null;
-  let formData = { name: '', year_of_study: 1 };
+  let formData = { name: '', start_year: new Date().getFullYear(), end_year: new Date().getFullYear() + 1 };
   let error = '';
   let success = '';
 
@@ -21,7 +21,7 @@
     const { data, error: fetchError } = await supabase
       .from('master_class_room')
       .select('*')
-      .order('year_of_study', { ascending: true });
+      .order('start_year', { ascending: true });
 
     if (fetchError) {
       console.error('Error loading classrooms:', fetchError);
@@ -33,7 +33,8 @@
 
   function openAddModal() {
     editingClassroom = null;
-    formData = { name: '', year_of_study: 1 };
+    const currentYear = new Date().getFullYear();
+    formData = { name: '', start_year: currentYear, end_year: currentYear + 1 };
     error = '';
     showModal = true;
   }
@@ -42,7 +43,8 @@
     editingClassroom = classroom;
     formData = {
       name: classroom.name,
-      year_of_study: classroom.year_of_study
+      start_year: classroom.start_year,
+      end_year: classroom.end_year
     };
     error = '';
     showModal = true;
@@ -51,7 +53,8 @@
   function closeModal() {
     showModal = false;
     editingClassroom = null;
-    formData = { name: '', year_of_study: 1 };
+    const currentYear = new Date().getFullYear();
+    formData = { name: '', start_year: currentYear, end_year: currentYear + 1 };
     error = '';
   }
 
@@ -61,8 +64,13 @@
       return;
     }
 
-    if (formData.year_of_study < 1) {
-      error = 'Year of study must be at least 1';
+    if (formData.start_year < 2000 || formData.start_year > 2100) {
+      error = 'Start year must be between 2000 and 2100';
+      return;
+    }
+
+    if (formData.end_year <= formData.start_year) {
+      error = 'End year must be greater than start year';
       return;
     }
 
@@ -72,7 +80,8 @@
         .from('master_class_room')
         .update({
           name: formData.name,
-          year_of_study: formData.year_of_study,
+          start_year: formData.start_year,
+          end_year: formData.end_year,
           updated_at: new Date().toISOString()
         })
         .eq('id', editingClassroom.id);
@@ -122,6 +131,11 @@
     }
   }
 </script>
+
+<svelte:head>
+  <title>Absensi Siswa - Master Ruang Kelas</title>
+  <meta name="description" content="Absensi siswa" />
+</svelte:head>
 
 <Navigation />
 
@@ -173,7 +187,7 @@
             {#each classrooms as classroom}
               <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{classroom.name}</td>
-                <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">Year {classroom.year_of_study}</td>
+                <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{classroom.start_year}/{classroom.end_year}</td>
                 <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{new Date(classroom.created_at).toLocaleDateString()}</td>
                 <td class="px-6 py-4 space-x-2 text-sm font-medium text-right whitespace-nowrap">
                   <button
@@ -221,19 +235,35 @@
           />
         </div>
 
-        <div>
-          <label for="year" class="block mb-2 text-sm font-medium text-gray-700">
-            Year of Study
-          </label>
-          <input
-            type="number"
-            id="year"
-            bind:value={formData.year_of_study}
-            min="1"
-            max="12"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          />
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="start_year" class="block mb-2 text-sm font-medium text-gray-700">
+              Start Year
+            </label>
+            <input
+              type="number"
+              id="start_year"
+              bind:value={formData.start_year}
+              min="2000"
+              max="2100"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+          <div>
+            <label for="end_year" class="block mb-2 text-sm font-medium text-gray-700">
+              End Year
+            </label>
+            <input
+              type="number"
+              id="end_year"
+              bind:value={formData.end_year}
+              min="2000"
+              max="2100"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
         </div>
 
         {#if error}

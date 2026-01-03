@@ -31,7 +31,7 @@
     const { data } = await supabase
       .from('master_class_room')
       .select('*')
-      .order('year_of_study', { ascending: true });
+      .order('start_year', { ascending: true });
     classrooms = data || [];
   }
 
@@ -108,16 +108,22 @@
 
       const totalDays = studentAttendance.length;
       const presentDays = studentAttendance.filter(
-        (a: any) => a.attendance_status === AttendanceStatus.Present
+        (a: any) => a.attendance_status === AttendanceStatus.Hadir
       ).length;
       const absentDays = studentAttendance.filter(
-        (a: any) => a.attendance_status === AttendanceStatus.Absent
+        (a: any) => a.attendance_status === AttendanceStatus.Alpa
       ).length;
-      const lateDays = studentAttendance.filter(
-        (a: any) => a.attendance_status === AttendanceStatus.Late
+      const sickDays = studentAttendance.filter(
+        (a: any) => a.attendance_status === AttendanceStatus.Sakit
       ).length;
       const excusedDays = studentAttendance.filter(
-        (a: any) => a.attendance_status === AttendanceStatus.Excused
+        (a: any) => a.attendance_status === AttendanceStatus.Izin
+      ).length;
+      const truantDays = studentAttendance.filter(
+        (a: any) => a.attendance_status === AttendanceStatus.Bolos
+      ).length;
+      const onDutyDays = studentAttendance.filter(
+        (a: any) => a.attendance_status === AttendanceStatus.Tugas
       ).length;
 
       const attendanceRate = totalDays > 0 ? ((presentDays / totalDays) * 100).toFixed(1) : '0';
@@ -128,8 +134,10 @@
         totalDays,
         presentDays,
         absentDays,
-        lateDays,
+        sickDays,
         excusedDays,
+        truantDays,
+        onDutyDays,
         attendanceRate: `${attendanceRate}%`
       };
     });
@@ -168,14 +176,18 @@
 
   function getStatusText(status: number): string {
     switch (status) {
-      case AttendanceStatus.Present:
-        return 'Present';
-      case AttendanceStatus.Absent:
-        return 'Absent';
-      case AttendanceStatus.Late:
-        return 'Late';
-      case AttendanceStatus.Excused:
-        return 'Excused';
+      case AttendanceStatus.Hadir:
+        return 'Hadir (Present)';
+      case AttendanceStatus.Alpa:
+        return 'Alpa (Absent)';
+      case AttendanceStatus.Sakit:
+        return 'Sakit (Sick)';
+      case AttendanceStatus.Izin:
+        return 'Izin (Excused)';
+      case AttendanceStatus.Bolos:
+        return 'Bolos (Truant)';
+      case AttendanceStatus.Tugas:
+        return 'Tugas (On Duty)';
       default:
         return 'Unknown';
     }
@@ -212,6 +224,11 @@
     loadStudents();
   }
 </script>
+
+<svelte:head>
+  <title>Absensi Siswa - Master Report</title>
+  <meta name="description" content="Absensi siswa" />
+</svelte:head>
 
 <Navigation />
 
@@ -293,7 +310,7 @@
           >
             <option value="">Choose a classroom</option>
             {#each classrooms as classroom}
-              <option value={classroom.id}>{classroom.name} (Year {classroom.year_of_study})</option>
+              <option value={classroom.id}>{classroom.name} ({classroom.start_year}/{classroom.end_year})</option>
             {/each}
           </select>
         </div>
@@ -364,10 +381,12 @@
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Name</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Reg. Number</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Total Days</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Present</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Absent</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Late</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Excused</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Hadir</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Alpa</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Sakit</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Izin</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Bolos</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Tugas</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Rate</th>
                 {:else}
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Date</th>
@@ -387,17 +406,22 @@
                     <td class="px-6 py-4 text-sm text-center text-gray-500 whitespace-nowrap">{row.totalDays}</td>
                     <td class="px-6 py-4 text-sm text-center text-green-600 whitespace-nowrap">{row.presentDays}</td>
                     <td class="px-6 py-4 text-sm text-center text-red-600 whitespace-nowrap">{row.absentDays}</td>
-                    <td class="px-6 py-4 text-sm text-center text-yellow-600 whitespace-nowrap">{row.lateDays}</td>
+                    <td class="px-6 py-4 text-sm text-center text-orange-600 whitespace-nowrap">{row.sickDays}</td>
                     <td class="px-6 py-4 text-sm text-center text-blue-600 whitespace-nowrap">{row.excusedDays}</td>
+                    <td class="px-6 py-4 text-sm text-center text-purple-600 whitespace-nowrap">{row.truantDays}</td>
+                    <td class="px-6 py-4 text-sm text-center text-yellow-600 whitespace-nowrap">{row.onDutyDays}</td>
                     <td class="px-6 py-4 text-sm font-semibold text-center text-gray-900 whitespace-nowrap">{row.attendanceRate}</td>
                   {:else}
                     <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{row.date}</td>
                     <td class="px-6 py-4 text-sm whitespace-nowrap">
                       <span class="px-2 py-1 text-xs font-medium rounded-full {
-                        row.status === 'Present' ? 'bg-green-100 text-green-800' :
-                        row.status === 'Absent' ? 'bg-red-100 text-red-800' :
-                        row.status === 'Late' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-blue-100 text-blue-800'
+                        row.status.includes('Hadir') ? 'bg-green-100 text-green-800' :
+                        row.status.includes('Alpa') ? 'bg-red-100 text-red-800' :
+                        row.status.includes('Sakit') ? 'bg-orange-100 text-orange-800' :
+                        row.status.includes('Izin') ? 'bg-blue-100 text-blue-800' :
+                        row.status.includes('Bolos') ? 'bg-purple-100 text-purple-800' :
+                        row.status.includes('Tugas') ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
                       }">
                         {row.status}
                       </span>

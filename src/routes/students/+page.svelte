@@ -32,7 +32,7 @@
     const { data } = await supabase
       .from('master_class_room')
       .select('*')
-      .order('year_of_study', { ascending: true });
+      .order('start_year', { ascending: true });
     classrooms = data || [];
   }
 
@@ -271,6 +271,11 @@
   });
 </script>
 
+<svelte:head>
+  <title>Absensi Siswa - Master Siswa</title>
+  <meta name="description" content="Absensi siswa" />
+</svelte:head>
+
 <Navigation />
 
 <div class="min-h-screen bg-gray-100">
@@ -322,7 +327,7 @@
         >
           <option value="">All Classrooms</option>
           {#each classrooms as classroom}
-            <option value={classroom.id}>{classroom.name} (Year {classroom.year_of_study})</option>
+            <option value={classroom.id}>{classroom.name} ({classroom.start_year}/{classroom.end_year})</option>
           {/each}
         </select>
       </div>
@@ -365,7 +370,7 @@
                 <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{student.registration_number}</td>
                 <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
                   {#if student.classroom}
-                    {student.classroom.name} (Year {student.classroom.year_of_study})
+                    {student.classroom.name} ({student.classroom.start_year}/{student.classroom.end_year})
                   {:else}
                     <span class="text-gray-400">Not assigned</span>
                   {/if}
@@ -466,7 +471,7 @@
           >
             <option value="">Select classroom</option>
             {#each classrooms as classroom}
-              <option value={classroom.id}>{classroom.name} (Year {classroom.year_of_study})</option>
+              <option value={classroom.id}>{classroom.name} ({classroom.start_year}/{classroom.end_year})</option>
             {/each}
           </select>
         </div>

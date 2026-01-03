@@ -55,6 +55,11 @@
   }
 </script>
 
+<svelte:head>
+  <title>Absensi siswa</title>
+  <meta name="description" content="Sistem absensi siswa untuk sekolah" />
+</svelte:head>
+
 <Navigation />
 
 <div class="min-h-screen bg-gray-100">

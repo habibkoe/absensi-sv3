@@ -23,7 +23,7 @@
     const { data } = await supabase
       .from('master_class_room')
       .select('*')
-      .order('year_of_study', { ascending: true });
+      .order('start_year', { ascending: true });
     classrooms = data || [];
   }
 
@@ -62,10 +62,10 @@
         });
       }
 
-      // Initialize absent status for students without records
+      // Initialize with Hadir (Present) status for students without records
       students.forEach(student => {
         if (!attendanceRecords.has(student.id)) {
-          attendanceRecords.set(student.id, AttendanceStatus.Absent);
+          attendanceRecords.set(student.id, AttendanceStatus.Hadir);
         }
       });
 
@@ -105,7 +105,7 @@
       const records = students.map(student => ({
         student_id: student.id,
         class_room_id: selectedClassroom,
-        attendance_status: attendanceRecords.get(student.id) || AttendanceStatus.Absent,
+        attendance_status: attendanceRecords.get(student.id) || AttendanceStatus.Hadir,
         date: selectedDate
       }));
 
@@ -137,14 +137,18 @@
 
   function getStatusColor(status: number): string {
     switch (status) {
-      case AttendanceStatus.Present:
+      case AttendanceStatus.Hadir:
         return 'bg-green-100 text-green-800 border-green-300';
-      case AttendanceStatus.Absent:
+      case AttendanceStatus.Alpa:
         return 'bg-red-100 text-red-800 border-red-300';
-      case AttendanceStatus.Late:
+      case AttendanceStatus.Sakit:
         return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case AttendanceStatus.Excused:
+      case AttendanceStatus.Izin:
         return 'bg-blue-100 text-blue-800 border-blue-300';
+      case AttendanceStatus.Bolos:
+        return 'bg-orange-100 text-orange-800 border-orange-300';
+      case AttendanceStatus.Tugas:
+        return 'bg-purple-100 text-purple-800 border-purple-300';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-300';
     }
@@ -152,29 +156,37 @@
 
   function getStatusText(status: number): string {
     switch (status) {
-      case AttendanceStatus.Present:
-        return '✓ Present';
-      case AttendanceStatus.Absent:
-        return '✗ Absent';
-      case AttendanceStatus.Late:
-        return '⏰ Late';
-      case AttendanceStatus.Excused:
-        return '📋 Excused';
+      case AttendanceStatus.Hadir:
+        return '✓ Hadir';
+      case AttendanceStatus.Alpa:
+        return '✗ Alpa';
+      case AttendanceStatus.Sakit:
+        return '🤒 Sakit';
+      case AttendanceStatus.Izin:
+        return '📋 Izin';
+      case AttendanceStatus.Bolos:
+        return '🚫 Bolos';
+      case AttendanceStatus.Tugas:
+        return '📝 Tugas';
       default:
         return 'Unknown';
     }
   }
 
+
   $: if (selectedClassroom || selectedDate) {
     loadStudents();
   }
 </script>
-
+<svelte:head>
+  <title>Absensi Siswa - Proses Absensi</title>
+  <meta name="description" content="Absensi siswa" />
+</svelte:head>
 <Navigation />
 
 <div class="min-h-screen bg-gray-100">
   <div class="container px-4 py-8 mx-auto">
-    <h1 class="mb-8 text-3xl font-bold text-gray-800">Take Attendance</h1>
+    <h1 class="mb-8 text-3xl font-bold text-gray-800">Absensi</h1>
 
     {#if success}
       <div class="p-4 mb-4 text-green-700 bg-green-100 border border-green-400 rounded">
@@ -193,23 +205,23 @@
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
           <label for="classroom" class="block mb-2 text-sm font-medium text-gray-700">
-            Select Classroom *
+            Ruang Kelas *
           </label>
           <select
             id="classroom"
             bind:value={selectedClassroom}
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="">Choose a classroom</option>
+            <option value="">pilih ruang kelas</option>
             {#each classrooms as classroom}
-              <option value={classroom.id}>{classroom.name} (Year {classroom.year_of_study})</option>
+              <option value={classroom.id}>{classroom.name} ({classroom.start_year}/{classroom.end_year})</option>
             {/each}
           </select>
         </div>
 
         <div>
           <label for="date" class="block mb-2 text-sm font-medium text-gray-700">
-            Select Date *
+            Tanggal *
           </label>
           <input
             type="date"
@@ -224,43 +236,55 @@
     {#if loading}
       <div class="text-center">
         <div class="w-12 h-12 mx-auto border-b-2 border-blue-600 rounded-full animate-spin"></div>
-        <p class="mt-4 text-gray-600">Loading students...</p>
+        <p class="mt-4 text-gray-600">Loading siswa...</p>
       </div>
     {:else if selectedClassroom && students.length === 0}
       <div class="p-8 text-center bg-white rounded-lg shadow-md">
-        <p class="text-gray-600">No students found in this classroom. Please add students first.</p>
+        <p class="text-gray-600">Siswa tidak ditemukan di kelas ini. Tolong tambah dulu.</p>
         <a href="/students" class="inline-block px-4 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-          Go to Students
+          Siswa
         </a>
       </div>
     {:else if selectedClassroom && students.length > 0}
       <!-- Quick Actions -->
       <div class="p-4 mb-6 bg-white rounded-lg shadow-md">
-        <h2 class="mb-3 text-lg font-semibold text-gray-800">Quick Actions</h2>
+        <h2 class="mb-3 text-lg font-semibold text-gray-800">Aksi cepat</h2>
         <div class="flex flex-wrap gap-2">
           <button
-            on:click={() => markAllAs(AttendanceStatus.Present)}
+            on:click={() => markAllAs(AttendanceStatus.Hadir)}
             class="px-4 py-2 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
           >
-            Mark All Present
+            Hadir semua
           </button>
           <button
-            on:click={() => markAllAs(AttendanceStatus.Absent)}
+            on:click={() => markAllAs(AttendanceStatus.Alpa)}
             class="px-4 py-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
           >
-            Mark All Absent
+            Alpa semua
           </button>
           <button
-            on:click={() => markAllAs(AttendanceStatus.Late)}
+            on:click={() => markAllAs(AttendanceStatus.Sakit)}
             class="px-4 py-2 text-white transition-colors bg-yellow-600 rounded-lg hover:bg-yellow-700"
           >
-            Mark All Late
+            Sakit semua
           </button>
           <button
-            on:click={() => markAllAs(AttendanceStatus.Excused)}
+            on:click={() => markAllAs(AttendanceStatus.Izin)}
             class="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
           >
-            Mark All Excused
+            Izin semua
+          </button>
+          <button
+            on:click={() => markAllAs(AttendanceStatus.Bolos)}
+            class="px-4 py-2 text-white transition-colors bg-orange-600 rounded-lg hover:bg-orange-700"
+          >
+            Bolos semua
+          </button>
+          <button
+            on:click={() => markAllAs(AttendanceStatus.Tugas)}
+            class="px-4 py-2 text-white transition-colors bg-purple-600 rounded-lg hover:bg-purple-700"
+          >
+            Tugas semua
           </button>
         </div>
       </div>
@@ -268,7 +292,7 @@
       <!-- Students List -->
       <div class="p-6 mb-6 bg-white rounded-lg shadow-md">
         <h2 class="mb-4 text-lg font-semibold text-gray-800">
-          Students ({students.length})
+          Siswa ({students.length})
         </h2>
         <div class="space-y-3">
           {#each students as student}
@@ -287,39 +311,57 @@
                 </div>
               </div>
 
-              <div class="flex gap-2">
+              <div class="flex flex-wrap gap-2">
                 <button
-                  on:click={() => setAttendance(student.id, AttendanceStatus.Present)}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Present
+                  on:click={() => setAttendance(student.id, AttendanceStatus.Hadir)}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Hadir
                     ? 'bg-green-600 text-white border-green-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50'}"
                 >
-                  Present
+                  Hadir
                 </button>
                 <button
-                  on:click={() => setAttendance(student.id, AttendanceStatus.Absent)}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Absent
+                  on:click={() => setAttendance(student.id, AttendanceStatus.Alpa)}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Alpa
                     ? 'bg-red-600 text-white border-red-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-red-50'}"
                 >
-                  Absent
+                  Alpa
                 </button>
                 <button
-                  on:click={() => setAttendance(student.id, AttendanceStatus.Late)}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Late
+                  on:click={() => setAttendance(student.id, AttendanceStatus.Sakit)}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Sakit
                     ? 'bg-yellow-600 text-white border-yellow-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-yellow-50'}"
                 >
-                  Late
+                  Sakit
                 </button>
                 <button
-                  on:click={() => setAttendance(student.id, AttendanceStatus.Excused)}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Excused
+                  on:click={() => setAttendance(student.id, AttendanceStatus.Izin)}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Izin
                     ? 'bg-blue-600 text-white border-blue-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50'}"
                 >
-                  Excused
+                  Izin
                 </button>
+                <button
+                  on:click={() => setAttendance(student.id, AttendanceStatus.Bolos)}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Bolos
+                    ? 'bg-orange-600 text-white border-orange-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-50'}"
+                >
+                  Bolos
+                </button>
+                {#if !attendanceRecords.get(student.id) || attendanceRecords.get(student.id) === AttendanceStatus.Hadir}
+                  <button
+                    on:click={() => setAttendance(student.id, AttendanceStatus.Tugas)}
+                    class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Tugas
+                      ? 'bg-purple-600 text-white border-purple-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-purple-50'}"
+                  >
+                    Tugas
+                  </button>
+                {/if}
               </div>
             </div>
           {/each}
@@ -338,7 +380,7 @@
       </div>
     {:else}
       <div class="p-8 text-center bg-white rounded-lg shadow-md">
-        <p class="text-gray-600">Select a classroom and date to start taking attendance.</p>
+        <p class="text-gray-600">Pilih kelas dan tanggal untuk memulai absensi.</p>
       </div>
     {/if}
   </div>

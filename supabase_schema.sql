@@ -5,10 +5,12 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 2. Classroom Master Table
+-- Academic year format: start_year/end_year (e.g., 2025/2026)
 CREATE TABLE master_class_room (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
-  year_of_study INTEGER NOT NULL,
+  start_year INTEGER NOT NULL,
+  end_year INTEGER NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -25,11 +27,18 @@ CREATE TABLE students (
 );
 
 -- 4. Attendance Table
+-- Attendance Status Values:
+-- 1 = Hadir (Present) - DEFAULT
+-- 2 = Alpa (Absent without permission)
+-- 3 = Sakit (Sick)
+-- 4 = Izin (Excused/Permission)
+-- 5 = Bolos (Truant/Skip)
+-- 6 = Tugas (On Assignment/Duty)
 CREATE TABLE attendance (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
   class_room_id UUID NOT NULL REFERENCES master_class_room(id) ON DELETE CASCADE,
-  attendance_status INTEGER NOT NULL, -- 1=present, 0=absent, 2=late, 3=excused
+  attendance_status INTEGER NOT NULL DEFAULT 1,
   date DATE NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(student_id, date) -- Prevent duplicate attendance entries for same student on same day

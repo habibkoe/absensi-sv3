@@ -2,7 +2,8 @@
 export interface Classroom {
   id: string;
   name: string;
-  year_of_study: number;
+  start_year: number;
+  end_year: number;
   created_at: string;
   updated_at: string;
 }
@@ -35,18 +36,21 @@ export interface AttendanceWithStudent extends Attendance {
   student?: Student;
 }
 
-// Attendance Status Enum
+// Attendance Status Enum (Indonesian School System)
 export enum AttendanceStatus {
-  Absent = 0,
-  Present = 1,
-  Late = 2,
-  Excused = 3
+  Hadir = 1,    // Present - DEFAULT
+  Alpa = 2,     // Absent without permission
+  Sakit = 3,    // Sick
+  Izin = 4,     // Excused/Permission
+  Bolos = 5,    // Truant/Skip
+  Tugas = 6     // On Assignment/Duty
 }
 
 // Form Types
 export interface ClassroomFormData {
   name: string;
-  year_of_study: number;
+  start_year: number;
+  end_year: number;
 }
 
 export interface StudentFormData {
