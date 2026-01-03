@@ -142,12 +142,12 @@
 <div class="min-h-screen bg-gray-100">
   <div class="container px-4 py-8 mx-auto">
     <div class="flex items-center justify-between mb-8">
-      <h1 class="text-3xl font-bold text-gray-800">Classrooms</h1>
+      <h1 class="text-3xl font-bold text-gray-800">Ruang Kelas</h1>
       <button
         on:click={openAddModal}
         class="px-4 py-2 font-semibold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
       >
-        + Add Classroom
+        + Tambah data
       </button>
     </div>
 
@@ -223,7 +223,7 @@
       <form on:submit|preventDefault={handleSubmit} class="space-y-4">
         <div>
           <label for="name" class="block mb-2 text-sm font-medium text-gray-700">
-            Classroom Name
+            Nama kelas
           </label>
           <input
             type="text"
@@ -238,7 +238,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label for="start_year" class="block mb-2 text-sm font-medium text-gray-700">
-              Start Year
+              Tahun mulai
             </label>
             <input
               type="number"
@@ -252,7 +252,7 @@
           </div>
           <div>
             <label for="end_year" class="block mb-2 text-sm font-medium text-gray-700">
-              End Year
+              Tahun Akhir
             </label>
             <input
               type="number"

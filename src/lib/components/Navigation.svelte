@@ -19,7 +19,7 @@
   <div class="container px-4 py-4 mx-auto">
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-8">
-        <a href="/" class="text-xl font-bold">Attendance System</a>
+        <a href="/" class="text-xl font-bold">Sistem Absensi</a>
         
         <div class="hidden space-x-4 md:flex">
           <a
@@ -32,19 +32,19 @@
             href="/classrooms"
             class="px-3 py-2 rounded-lg transition-colors {isActive('/classrooms') ? 'bg-blue-700' : 'hover:bg-blue-700'}"
           >
-            Classrooms
+            Ruang kelas
           </a>
           <a
             href="/students"
             class="px-3 py-2 rounded-lg transition-colors {isActive('/students') ? 'bg-blue-700' : 'hover:bg-blue-700'}"
           >
-            Students
+            Master Siswa
           </a>
           <a
             href="/attendance"
             class="px-3 py-2 rounded-lg transition-colors {isActive('/attendance') ? 'bg-blue-700' : 'hover:bg-blue-700'}"
           >
-            Attendance
+            Absensi
           </a>
           <a
             href="/reports"
@@ -88,21 +88,21 @@
           class="block px-3 py-2 rounded-lg {isActive('/classrooms') ? 'bg-blue-700' : 'hover:bg-blue-700'}"
           on:click={() => (menuOpen = false)}
         >
-          Classrooms
+          Ruang kelas
         </a>
         <a
           href="/students"
           class="block px-3 py-2 rounded-lg {isActive('/students') ? 'bg-blue-700' : 'hover:bg-blue-700'}"
           on:click={() => (menuOpen = false)}
         >
-          Students
+          Master Siswa
         </a>
         <a
           href="/attendance"
           class="block px-3 py-2 rounded-lg {isActive('/attendance') ? 'bg-blue-700' : 'hover:bg-blue-700'}"
           on:click={() => (menuOpen = false)}
         >
-          Attendance
+          Absensi
         </a>
         <a
           href="/reports"

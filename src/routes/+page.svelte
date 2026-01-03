@@ -69,14 +69,14 @@
     {#if loading}
       <div class="text-center">
         <div class="w-12 h-12 mx-auto border-b-2 border-blue-600 rounded-full animate-spin"></div>
-        <p class="mt-4 text-gray-600">Loading statistics...</p>
+        <p class="mt-4 text-gray-600">Loading statik...</p>
       </div>
     {:else}
       <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
         <div class="p-6 bg-white rounded-lg shadow-md">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total Classrooms</p>
+              <p class="text-sm font-medium text-gray-600">Total ruang kelas</p>
               <p class="mt-2 text-3xl font-bold text-blue-600">{stats.totalClassrooms}</p>
             </div>
             <div class="p-3 bg-blue-100 rounded-full">
@@ -90,7 +90,7 @@
         <div class="p-6 bg-white rounded-lg shadow-md">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total Students</p>
+              <p class="text-sm font-medium text-gray-600">Total siswa</p>
               <p class="mt-2 text-3xl font-bold text-green-600">{stats.totalStudents}</p>
             </div>
             <div class="p-3 bg-green-100 rounded-full">
@@ -132,27 +132,27 @@
 
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div class="p-6 bg-white rounded-lg shadow-md">
-          <h2 class="mb-4 text-xl font-semibold text-gray-800">Quick Actions</h2>
+          <h2 class="mb-4 text-xl font-semibold text-gray-800">Akses cepat</h2>
           <div class="space-y-3">
             <a href="/attendance" class="block px-4 py-3 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700">
-              📝 Take Attendance
+              📝 Absensi
             </a>
             <a href="/students" class="block px-4 py-3 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700">
-              👨‍🎓 Manage Students
+              👨‍🎓 Master siswa
             </a>
             <a href="/classrooms" class="block px-4 py-3 text-white transition-colors bg-purple-600 rounded-lg hover:bg-purple-700">
-              🏫 Manage Classrooms
+              🏫 Master ruang kelas
             </a>
             <a href="/reports" class="block px-4 py-3 text-white transition-colors bg-orange-600 rounded-lg hover:bg-orange-700">
-              📊 View Reports
+              📊 Lihat report
             </a>
           </div>
         </div>
 
         <div class="p-6 bg-white rounded-lg shadow-md">
-          <h2 class="mb-4 text-xl font-semibold text-gray-800">System Information</h2>
+          <h2 class="mb-4 text-xl font-semibold text-gray-800">Informasi</h2>
           <div class="space-y-3 text-gray-700">
-            <p><strong>Today:</strong> {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p><strong>Hari ini:</strong> {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
             <p><strong>Total Records Taken:</strong> {stats.todayAttendance} today</p>
             <p><strong>Attendance Rate:</strong> {stats.todayAttendance > 0 ? ((stats.presentToday / stats.todayAttendance) * 100).toFixed(1) : 0}% present</p>
           </div>

@@ -35,7 +35,7 @@
 <div class="flex items-center justify-center min-h-screen bg-gray-100">
   <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
     <h1 class="mb-6 text-3xl font-bold text-center text-gray-800">
-      Student Attendance System
+      Sistem Absensi Siswa
     </h1>
     <h2 class="mb-6 text-xl font-semibold text-center text-gray-600">Login</h2>
 
