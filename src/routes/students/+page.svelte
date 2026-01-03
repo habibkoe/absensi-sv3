@@ -306,7 +306,7 @@
     <div class="grid grid-cols-1 gap-4 p-4 mb-6 bg-white rounded-lg shadow-md md:grid-cols-2">
       <div>
         <label for="search" class="block mb-2 text-sm font-medium text-gray-700">
-          Search by name or registration number
+          Cari berdasarkan nama atau NIS
         </label>
         <input
           type="text"
@@ -318,14 +318,14 @@
       </div>
       <div>
         <label for="filter" class="block mb-2 text-sm font-medium text-gray-700">
-          Filter by classroom
+          Filter ruang kelas
         </label>
         <select
           id="filter"
           bind:value={filterClassroom}
           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
-          <option value="">All Classrooms</option>
+          <option value="">Semua ruang kelas</option>
           {#each classrooms as classroom}
             <option value={classroom.id}>{classroom.name} ({classroom.start_year}/{classroom.end_year})</option>
           {/each}
@@ -336,11 +336,11 @@
     {#if loading}
       <div class="text-center">
         <div class="w-12 h-12 mx-auto border-b-2 border-blue-600 rounded-full animate-spin"></div>
-        <p class="mt-4 text-gray-600">Loading students...</p>
+        <p class="mt-4 text-gray-600">Loading siswa...</p>
       </div>
     {:else if filteredStudents.length === 0}
       <div class="p-8 text-center bg-white rounded-lg shadow-md">
-        <p class="text-gray-600">No students found. Add your first student to get started!</p>
+        <p class="text-gray-600">Tidak ada siswa yang ditemukan. Tambah data pertama!</p>
       </div>
     {:else}
       <div class="overflow-hidden bg-white rounded-lg shadow-md">
@@ -348,9 +348,9 @@
           <thead class="bg-gray-50">
             <tr>
               <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Photo</th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Name</th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Registration Number</th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Classroom</th>
+              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nama</th>
+              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nomor Induk Siswa</th>
+              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Ruang Kelas</th>
               <th class="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">Actions</th>
             </tr>
           </thead>

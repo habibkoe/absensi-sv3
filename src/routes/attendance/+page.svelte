@@ -229,6 +229,13 @@
   }
 
 
+  // Check if "Tugas semua" button should be visible
+  // Only show if all students are either Hadir or Tugas
+  $: canShowTugasSemua = students.every(student => {
+    const status = attendanceRecords.get(student.id);
+    return status === AttendanceStatus.Hadir || status === AttendanceStatus.Tugas;
+  });
+
   $: if (selectedClassroom || selectedDate) {
     loadStudents();
   }
@@ -335,12 +342,14 @@
           >
             Bolos semua
           </button>
-          <button
-            on:click={() => markAllAs(AttendanceStatus.Tugas)}
-            class="px-4 py-2 text-white transition-colors bg-purple-600 rounded-lg hover:bg-purple-700"
-          >
-            Tugas semua
-          </button>
+          {#if canShowTugasSemua}
+            <button
+              on:click={() => markAllAs(AttendanceStatus.Tugas)}
+              class="px-4 py-2 text-white transition-colors bg-purple-600 rounded-lg hover:bg-purple-700"
+            >
+              Tugas semua
+            </button>
+          {/if}
         </div>
       </div>
 
@@ -434,7 +443,7 @@
                     class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
                   />
                   <label for="auto-score-{student.id}" class="ml-2 text-sm font-medium text-gray-700">
-                    Auto Score (100)
+                    Auto Score
                   </label>
                 </div>
                 

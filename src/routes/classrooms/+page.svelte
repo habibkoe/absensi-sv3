@@ -166,20 +166,20 @@
     {#if loading}
       <div class="text-center">
         <div class="w-12 h-12 mx-auto border-b-2 border-blue-600 rounded-full animate-spin"></div>
-        <p class="mt-4 text-gray-600">Loading classrooms...</p>
+        <p class="mt-4 text-gray-600">Loading ruang kelas...</p>
       </div>
     {:else if classrooms.length === 0}
       <div class="p-8 text-center bg-white rounded-lg shadow-md">
-        <p class="text-gray-600">No classrooms found. Add your first classroom to get started!</p>
+        <p class="text-gray-600">Tidak ada ruang kelas yang ditemukan. Tambah data ruang kelas terlebih dahulu!</p>
       </div>
     {:else}
       <div class="overflow-hidden bg-white rounded-lg shadow-md">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Name</th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Year of Study</th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Created At</th>
+              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nama</th>
+              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Tahun Pelajaran</th>
+              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Dibuat Pada</th>
               <th class="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">Actions</th>
             </tr>
           </thead>
@@ -217,7 +217,7 @@
   <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
     <div class="w-full max-w-md p-6 bg-white rounded-lg shadow-xl">
       <h2 class="mb-4 text-2xl font-bold text-gray-800">
-        {editingClassroom ? 'Edit Classroom' : 'Add Classroom'}
+        {editingClassroom ? 'Edit Ruang Kelas' : 'Tambah Ruang Kelas'}
       </h2>
 
       <form on:submit|preventDefault={handleSubmit} class="space-y-4">
@@ -284,7 +284,7 @@
             type="submit"
             class="px-4 py-2 font-semibold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
           >
-            {editingClassroom ? 'Update' : 'Add'}
+            {editingClassroom ? 'Update' : 'Simpan'}
           </button>
         </div>
       </form>
