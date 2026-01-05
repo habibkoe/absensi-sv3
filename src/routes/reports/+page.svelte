@@ -128,6 +128,14 @@
 
       const attendanceRate = totalDays > 0 ? ((presentDays / totalDays) * 100).toFixed(1) : '0';
 
+      // Calculate average score for Tugas status
+      const tugasWithScore = studentAttendance.filter(
+        (a: any) => a.attendance_status === AttendanceStatus.Tugas && a.score_nominal !== null
+      );
+      const avgScore = tugasWithScore.length > 0
+        ? (tugasWithScore.reduce((sum: number, a: any) => sum + (a.score_nominal || 0), 0) / tugasWithScore.length).toFixed(2)
+        : '-';
+
       return {
         name: student.name,
         registration_number: student.registration_number,
@@ -138,6 +146,7 @@
         excusedDays,
         truantDays,
         onDutyDays,
+        avgScore,
         attendanceRate: `${attendanceRate}%`
       };
     });
@@ -168,6 +177,10 @@
     reportData = (attendanceData || []).map((record: any) => ({
       date: new Date(record.date).toLocaleDateString(),
       status: getStatusText(record.attendance_status),
+      score: record.attendance_status === AttendanceStatus.Tugas && record.score_nominal !== null 
+        ? record.score_nominal 
+        : '-',
+      autoScore: record.is_auto_score ? 'Yes' : 'No',
       studentName: studentData.name,
       registrationNumber: studentData.registration_number,
       classroom: studentData.classroom?.name || 'N/A'
@@ -234,7 +247,7 @@
 
 <div class="min-h-screen bg-gray-100">
   <div class="container px-4 py-8 mx-auto">
-    <h1 class="mb-8 text-3xl font-bold text-gray-800">Attendance Reports</h1>
+    <h1 class="mb-8 text-3xl font-bold text-gray-800">Report Absensi</h1>
 
     {#if error}
       <div class="p-4 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
@@ -258,7 +271,7 @@
                 value="classroom"
                 class="mr-2"
               />
-              <span>Classroom Report</span>
+              <span>Report per kelas</span>
             </label>
             <label class="flex items-center">
               <input
@@ -267,7 +280,7 @@
                 value="student"
                 class="mr-2"
               />
-              <span>Individual Student Report</span>
+              <span>Report per siswa</span>
             </label>
           </div>
         </div>
@@ -276,7 +289,7 @@
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label for="startDate" class="block mb-2 text-sm font-medium text-gray-700">
-              Start Date *
+              Tanggal awal *
             </label>
             <input
               type="date"
@@ -287,7 +300,7 @@
           </div>
           <div>
             <label for="endDate" class="block mb-2 text-sm font-medium text-gray-700">
-              End Date *
+              Tanggal akhir *
             </label>
             <input
               type="date"
@@ -301,14 +314,14 @@
         <!-- Classroom Selection -->
         <div>
           <label for="classroom" class="block mb-2 text-sm font-medium text-gray-700">
-            Select Classroom *
+            Pilih ruang kelas *
           </label>
           <select
             id="classroom"
             bind:value={selectedClassroom}
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="">Choose a classroom</option>
+            <option value="">Pilih ruang kelas</option>
             {#each classrooms as classroom}
               <option value={classroom.id}>{classroom.name} ({classroom.start_year}/{classroom.end_year})</option>
             {/each}
@@ -319,7 +332,7 @@
         {#if reportType === 'student'}
           <div>
             <label for="student" class="block mb-2 text-sm font-medium text-gray-700">
-              Select Student *
+              Pilih siswa *
             </label>
             <select
               id="student"
@@ -327,7 +340,7 @@
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               disabled={!selectedClassroom}
             >
-              <option value="">Choose a student</option>
+              <option value="">Pilih siswa</option>
               {#each students as student}
                 <option value={student.id}>{student.name} - {student.registration_number}</option>
               {/each}
@@ -378,22 +391,25 @@
             <thead class="bg-gray-50">
               <tr>
                 {#if reportType === 'classroom'}
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Name</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Reg. Number</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Total Days</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nama Siswa</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nomor Induk Siswa (NIS)</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Total Hari</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Hadir</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Alpa</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Sakit</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Izin</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Bolos</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Tugas</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Avg Score</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Rate</th>
                 {:else}
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Date</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Tanggal</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Student</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Reg. Number</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Classroom</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Score</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Auto Score</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Siswa</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nomor Induk Siswa (NIS)</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Ruang kelas</th>
                 {/if}
               </tr>
             </thead>
@@ -410,6 +426,7 @@
                     <td class="px-6 py-4 text-sm text-center text-blue-600 whitespace-nowrap">{row.excusedDays}</td>
                     <td class="px-6 py-4 text-sm text-center text-purple-600 whitespace-nowrap">{row.truantDays}</td>
                     <td class="px-6 py-4 text-sm text-center text-yellow-600 whitespace-nowrap">{row.onDutyDays}</td>
+                    <td class="px-6 py-4 text-sm text-center font-semibold whitespace-nowrap {row.avgScore !== '-' ? 'text-indigo-600' : 'text-gray-400'}">{row.avgScore}</td>
                     <td class="px-6 py-4 text-sm font-semibold text-center text-gray-900 whitespace-nowrap">{row.attendanceRate}</td>
                   {:else}
                     <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{row.date}</td>
@@ -426,6 +443,8 @@
                         {row.status}
                       </span>
                     </td>
+                    <td class="px-6 py-4 text-sm text-center font-semibold whitespace-nowrap {row.score !== '-' ? 'text-indigo-600' : 'text-gray-400'}">{row.score}</td>
+                    <td class="px-6 py-4 text-sm text-center text-gray-600 whitespace-nowrap">{row.autoScore}</td>
                     <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{row.studentName}</td>
                     <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.registrationNumber}</td>
                     <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.classroom}</td>
