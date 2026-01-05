@@ -16,9 +16,19 @@
   let reportData: any[] = [];
   let loading = false;
   let error = '';
+  let currentUserEmail = '';
+  let currentUserName = '';
 
   onMount(async () => {
     await loadClassrooms();
+    
+    // Fetch current user info
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.email) {
+      currentUserEmail = user.email;
+      // Extract name from email (part before @)
+      currentUserName = user.email.split('@')[0];
+    }
     
     // Set default date range (last 30 days)
     const today = new Date();
@@ -137,17 +147,17 @@
         : '-';
 
       return {
-        name: student.name,
-        registration_number: student.registration_number,
-        totalDays,
-        presentDays,
-        absentDays,
-        sickDays,
-        excusedDays,
-        truantDays,
-        onDutyDays,
-        avgScore,
-        attendanceRate: `${attendanceRate}%`
+        NamaSiswa: student.name,
+        Nis: student.registration_number,
+        TotalHari: totalDays,
+        Hadir: presentDays,
+        Alpa: absentDays,
+        Sakit: sickDays,
+        Izin: excusedDays,
+        Bolos: truantDays,
+        Tugas: onDutyDays,
+        Nilai: avgScore,
+        PersentaseKehadiran: `${attendanceRate}%`
       };
     });
   }
@@ -213,15 +223,33 @@
     }
 
     try {
-      // Create worksheet
-      const ws = XLSX.utils.json_to_sheet(reportData);
-
+      // Get classroom name
+      const classroomName = classrooms.find(c => c.id === selectedClassroom)?.name || 'N/A';
+      
+      // Format date range
+      const formattedStartDate = new Date(startDate).toLocaleDateString('id-ID');
+      const formattedEndDate = new Date(endDate).toLocaleDateString('id-ID');
+      const periode = `${formattedStartDate} - ${formattedEndDate}`;
+      
+      // Create header rows
+      const headerRows = [
+        ['Ruang Kelas:', classroomName],
+        ['Guru:', currentUserName || currentUserEmail || 'N/A'],
+        ['Periode:', periode],
+        [] // blank row
+      ];
+      
+      // Create worksheet with header rows
+      const ws = XLSX.utils.aoa_to_sheet(headerRows);
+      
+      // Append data table to worksheet (starting from row 5)
+      XLSX.utils.sheet_add_json(ws, reportData, { origin: 'A5' });
+      
       // Create workbook
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Report');
 
       // Generate filename
-      const classroomName = classrooms.find(c => c.id === selectedClassroom)?.name || 'Report';
       const timestamp = new Date().toISOString().split('T')[0];
       const filename = `${reportType}_${classroomName}_${timestamp}.xlsx`;
 
@@ -417,17 +445,17 @@
               {#each reportData as row}
                 <tr class="hover:bg-gray-50">
                   {#if reportType === 'classroom'}
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{row.name}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.registration_number}</td>
-                    <td class="px-6 py-4 text-sm text-center text-gray-500 whitespace-nowrap">{row.totalDays}</td>
-                    <td class="px-6 py-4 text-sm text-center text-green-600 whitespace-nowrap">{row.presentDays}</td>
-                    <td class="px-6 py-4 text-sm text-center text-red-600 whitespace-nowrap">{row.absentDays}</td>
-                    <td class="px-6 py-4 text-sm text-center text-orange-600 whitespace-nowrap">{row.sickDays}</td>
-                    <td class="px-6 py-4 text-sm text-center text-blue-600 whitespace-nowrap">{row.excusedDays}</td>
-                    <td class="px-6 py-4 text-sm text-center text-purple-600 whitespace-nowrap">{row.truantDays}</td>
-                    <td class="px-6 py-4 text-sm text-center text-yellow-600 whitespace-nowrap">{row.onDutyDays}</td>
-                    <td class="px-6 py-4 text-sm text-center font-semibold whitespace-nowrap {row.avgScore !== '-' ? 'text-indigo-600' : 'text-gray-400'}">{row.avgScore}</td>
-                    <td class="px-6 py-4 text-sm font-semibold text-center text-gray-900 whitespace-nowrap">{row.attendanceRate}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{row.NamaSiswa}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.Nis}</td>
+                    <td class="px-6 py-4 text-sm text-center text-gray-500 whitespace-nowrap">{row.TotalHari}</td>
+                    <td class="px-6 py-4 text-sm text-center text-green-600 whitespace-nowrap">{row.Hadir}</td>
+                    <td class="px-6 py-4 text-sm text-center text-red-600 whitespace-nowrap">{row.Alpa}</td>
+                    <td class="px-6 py-4 text-sm text-center text-orange-600 whitespace-nowrap">{row.Sakit}</td>
+                    <td class="px-6 py-4 text-sm text-center text-blue-600 whitespace-nowrap">{row.Izin}</td>
+                    <td class="px-6 py-4 text-sm text-center text-purple-600 whitespace-nowrap">{row.Bolos}</td>
+                    <td class="px-6 py-4 text-sm text-center text-yellow-600 whitespace-nowrap">{row.Tugas}</td>
+                    <td class="px-6 py-4 text-sm text-center font-semibold whitespace-nowrap {row.Nilai !== '-' ? 'text-indigo-600' : 'text-gray-400'}">{row.Nilai}</td>
+                    <td class="px-6 py-4 text-sm font-semibold text-center text-gray-900 whitespace-nowrap">{row.PersentaseKehadiran}</td>
                   {:else}
                     <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{row.date}</td>
                     <td class="px-6 py-4 text-sm whitespace-nowrap">
