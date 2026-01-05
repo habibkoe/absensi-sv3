@@ -149,6 +149,7 @@
       return {
         NamaSiswa: student.name,
         Nis: student.registration_number,
+        JenisKelamin: student.gender === 'L' ? 'Laki-laki' : student.gender === 'P' ? 'Perempuan' : '-',
         TotalHari: totalDays,
         Hadir: presentDays,
         Alpa: absentDays,
@@ -193,6 +194,7 @@
       autoScore: record.is_auto_score ? 'Yes' : 'No',
       studentName: studentData.name,
       registrationNumber: studentData.registration_number,
+      gender: studentData.gender === 'L' ? 'Laki-laki' : studentData.gender === 'P' ? 'Perempuan' : '-',
       classroom: studentData.classroom?.name || 'N/A'
     }));
   }
@@ -421,6 +423,7 @@
                 {#if reportType === 'classroom'}
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nama Siswa</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nomor Induk Siswa (NIS)</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Jenis Kelamin</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Total Hari</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Hadir</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Alpa</th>
@@ -437,6 +440,7 @@
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Auto Score</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Siswa</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nomor Induk Siswa (NIS)</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Jenis Kelamin</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Ruang kelas</th>
                 {/if}
               </tr>
@@ -447,6 +451,7 @@
                   {#if reportType === 'classroom'}
                     <td class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{row.NamaSiswa}</td>
                     <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.Nis}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.JenisKelamin}</td>
                     <td class="px-6 py-4 text-sm text-center text-gray-500 whitespace-nowrap">{row.TotalHari}</td>
                     <td class="px-6 py-4 text-sm text-center text-green-600 whitespace-nowrap">{row.Hadir}</td>
                     <td class="px-6 py-4 text-sm text-center text-red-600 whitespace-nowrap">{row.Alpa}</td>
@@ -475,6 +480,7 @@
                     <td class="px-6 py-4 text-sm text-center text-gray-600 whitespace-nowrap">{row.autoScore}</td>
                     <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{row.studentName}</td>
                     <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.registrationNumber}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.gender}</td>
                     <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.classroom}</td>
                   {/if}
                 </tr>
