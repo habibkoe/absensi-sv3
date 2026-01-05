@@ -147,8 +147,8 @@
         : '-';
 
       return {
-        NamaSiswa: student.name,
         Nis: student.registration_number,
+        NamaSiswa: student.name,
         JenisKelamin: student.gender === 'L' ? 'Laki-laki' : student.gender === 'P' ? 'Perempuan' : '-',
         TotalHari: totalDays,
         Hadir: presentDays,
@@ -186,14 +186,14 @@
 
     // Format attendance data
     reportData = (attendanceData || []).map((record: any) => ({
+      registrationNumber: studentData.registration_number,
+      studentName: studentData.name,
       date: new Date(record.date).toLocaleDateString(),
       status: getStatusText(record.attendance_status),
       score: record.attendance_status === AttendanceStatus.Tugas && record.score_nominal !== null 
         ? record.score_nominal 
         : '-',
       autoScore: record.is_auto_score ? 'Yes' : 'No',
-      studentName: studentData.name,
-      registrationNumber: studentData.registration_number,
       gender: studentData.gender === 'L' ? 'Laki-laki' : studentData.gender === 'P' ? 'Perempuan' : '-',
       classroom: studentData.classroom?.name || 'N/A'
     }));
@@ -241,11 +241,17 @@
         [] // blank row
       ];
       
+      // Add numbering to data
+      const dataWithNumbers = reportData.map((row, index) => ({
+        No: index + 1,
+        ...row
+      }));
+      
       // Create worksheet with header rows
       const ws = XLSX.utils.aoa_to_sheet(headerRows);
       
       // Append data table to worksheet (starting from row 5)
-      XLSX.utils.sheet_add_json(ws, reportData, { origin: 'A5' });
+      XLSX.utils.sheet_add_json(ws, dataWithNumbers, { origin: 'A5' });
       
       // Create workbook
       const wb = XLSX.utils.book_new();
@@ -421,8 +427,9 @@
             <thead class="bg-gray-50">
               <tr>
                 {#if reportType === 'classroom'}
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">No</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">NIS</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nama Siswa</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nomor Induk Siswa (NIS)</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Jenis Kelamin</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Total Hari</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Hadir</th>
@@ -434,23 +441,25 @@
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Avg Score</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Rate</th>
                 {:else}
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">No</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">NIS</th>
+                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nama Siswa</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Tanggal</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Score</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Auto Score</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Siswa</th>
-                  <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Nomor Induk Siswa (NIS)</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Jenis Kelamin</th>
                   <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Ruang kelas</th>
                 {/if}
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              {#each reportData as row}
+              {#each reportData as row, index}
                 <tr class="hover:bg-gray-50">
                   {#if reportType === 'classroom'}
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{row.NamaSiswa}</td>
+                    <td class="px-6 py-4 text-sm text-center text-gray-900 whitespace-nowrap">{index + 1}</td>
                     <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.Nis}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{row.NamaSiswa}</td>
                     <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.JenisKelamin}</td>
                     <td class="px-6 py-4 text-sm text-center text-gray-500 whitespace-nowrap">{row.TotalHari}</td>
                     <td class="px-6 py-4 text-sm text-center text-green-600 whitespace-nowrap">{row.Hadir}</td>
@@ -462,6 +471,9 @@
                     <td class="px-6 py-4 text-sm text-center font-semibold whitespace-nowrap {row.Nilai !== '-' ? 'text-indigo-600' : 'text-gray-400'}">{row.Nilai}</td>
                     <td class="px-6 py-4 text-sm font-semibold text-center text-gray-900 whitespace-nowrap">{row.PersentaseKehadiran}</td>
                   {:else}
+                    <td class="px-6 py-4 text-sm text-center text-gray-900 whitespace-nowrap">{index + 1}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.registrationNumber}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{row.studentName}</td>
                     <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{row.date}</td>
                     <td class="px-6 py-4 text-sm whitespace-nowrap">
                       <span class="px-2 py-1 text-xs font-medium rounded-full {
@@ -478,8 +490,6 @@
                     </td>
                     <td class="px-6 py-4 text-sm text-center font-semibold whitespace-nowrap {row.score !== '-' ? 'text-indigo-600' : 'text-gray-400'}">{row.score}</td>
                     <td class="px-6 py-4 text-sm text-center text-gray-600 whitespace-nowrap">{row.autoScore}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{row.studentName}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.registrationNumber}</td>
                     <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.gender}</td>
                     <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{row.classroom}</td>
                   {/if}
