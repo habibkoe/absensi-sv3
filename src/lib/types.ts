@@ -12,6 +12,7 @@ export interface Student {
   id: string;
   name: string;
   registration_number: string;
+  gender: 'L' | 'P' | null;
   photo_url: string | null;
   class_room_id: string | null;
   created_at: string;
