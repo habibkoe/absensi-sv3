@@ -17,6 +17,47 @@
   let error = '';
   let success = '';
 
+  // Time-based validation for editing
+  function isEditingAllowed(selectedDate: string): boolean {
+    const now = new Date(); // Already in Asia/Makassar timezone (GMT+8)
+    const selected = new Date(selectedDate + 'T00:00:00');
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const selectedDay = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate());
+    
+    // If selected date is in the future, allow editing
+    if (selectedDay > today) {
+      return true;
+    }
+    
+    // If selected date is today, check if time is before 12:00 PM
+    if (selectedDay.getTime() === today.getTime()) {
+      const currentHour = now.getHours();
+      return currentHour < 12;
+    }
+    
+    // If selected date is in the past, block editing
+    return false;
+  }
+
+  // Reactive variable to check if editing is allowed for the selected date
+  $: canEdit = isEditingAllowed(selectedDate);
+  
+  // Get appropriate warning message
+  $: warningMessage = !canEdit ? getWarningMessage(selectedDate) : '';
+  
+  function getWarningMessage(date: string): string {
+    const now = new Date();
+    const selected = new Date(date + 'T00:00:00');
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const selectedDay = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate());
+    
+    if (selectedDay.getTime() === today.getTime()) {
+      return `Waktu edit telah berakhir. Absensi untuk tanggal ${date} sudah final karena telah melewati pukul 12:00.`;
+    } else {
+      return `Absensi untuk tanggal ${date} sudah final dan tidak dapat diubah.`;
+    }
+  }
+
   onMount(async () => {
     await loadClassrooms();
   });
@@ -262,6 +303,17 @@
       </div>
     {/if}
 
+    {#if !canEdit && selectedClassroom && students.length > 0}
+      <div class="p-4 mb-4 text-orange-700 bg-orange-100 border border-orange-400 rounded">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          <span class="font-semibold">{warningMessage}</span>
+        </div>
+      </div>
+    {/if}
+
     <!-- Selection Panel -->
     <div class="p-6 mb-6 bg-white rounded-lg shadow-md">
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -314,38 +366,44 @@
         <div class="flex flex-wrap gap-2">
           <button
             on:click={() => markAllAs(AttendanceStatus.Hadir)}
-            class="px-4 py-2 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
+            disabled={!canEdit}
+            class="px-4 py-2 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-600"
           >
             Hadir semua
           </button>
           <button
             on:click={() => markAllAs(AttendanceStatus.Alpa)}
-            class="px-4 py-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
+            disabled={!canEdit}
+            class="px-4 py-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-red-600"
           >
             Alpa semua
           </button>
           <button
             on:click={() => markAllAs(AttendanceStatus.Sakit)}
-            class="px-4 py-2 text-white transition-colors bg-yellow-600 rounded-lg hover:bg-yellow-700"
+            disabled={!canEdit}
+            class="px-4 py-2 text-white transition-colors bg-yellow-600 rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-yellow-600"
           >
             Sakit semua
           </button>
           <button
             on:click={() => markAllAs(AttendanceStatus.Izin)}
-            class="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+            disabled={!canEdit}
+            class="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
           >
             Izin semua
           </button>
           <button
             on:click={() => markAllAs(AttendanceStatus.Bolos)}
-            class="px-4 py-2 text-white transition-colors bg-orange-600 rounded-lg hover:bg-orange-700"
+            disabled={!canEdit}
+            class="px-4 py-2 text-white transition-colors bg-orange-600 rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-600"
           >
             Bolos semua
           </button>
           {#if canShowTugasSemua}
             <button
               on:click={() => markAllAs(AttendanceStatus.Tugas)}
-              class="px-4 py-2 text-white transition-colors bg-purple-600 rounded-lg hover:bg-purple-700"
+              disabled={!canEdit}
+              class="px-4 py-2 text-white transition-colors bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-purple-600"
             >
               Tugas semua
             </button>
@@ -378,7 +436,8 @@
               <div class="flex flex-wrap gap-2">
                 <button
                   on:click={() => setAttendance(student.id, AttendanceStatus.Hadir)}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Hadir
+                  disabled={!canEdit}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(student.id) === AttendanceStatus.Hadir
                     ? 'bg-green-600 text-white border-green-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50'}"
                 >
@@ -386,7 +445,8 @@
                 </button>
                 <button
                   on:click={() => setAttendance(student.id, AttendanceStatus.Alpa)}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Alpa
+                  disabled={!canEdit}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(student.id) === AttendanceStatus.Alpa
                     ? 'bg-red-600 text-white border-red-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-red-50'}"
                 >
@@ -394,7 +454,8 @@
                 </button>
                 <button
                   on:click={() => setAttendance(student.id, AttendanceStatus.Sakit)}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Sakit
+                  disabled={!canEdit}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(student.id) === AttendanceStatus.Sakit
                     ? 'bg-yellow-600 text-white border-yellow-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-yellow-50'}"
                 >
@@ -402,7 +463,8 @@
                 </button>
                 <button
                   on:click={() => setAttendance(student.id, AttendanceStatus.Izin)}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Izin
+                  disabled={!canEdit}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(student.id) === AttendanceStatus.Izin
                     ? 'bg-blue-600 text-white border-blue-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50'}"
                 >
@@ -410,7 +472,8 @@
                 </button>
                 <button
                   on:click={() => setAttendance(student.id, AttendanceStatus.Bolos)}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Bolos
+                  disabled={!canEdit}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(student.id) === AttendanceStatus.Bolos
                     ? 'bg-orange-600 text-white border-orange-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-50'}"
                 >
@@ -419,7 +482,8 @@
                 {#if attendanceRecords.get(student.id) === AttendanceStatus.Hadir || attendanceRecords.get(student.id) === AttendanceStatus.Tugas}
                   <button
                     on:click={() => setAttendance(student.id, AttendanceStatus.Tugas)}
-                    class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg {attendanceRecords.get(student.id) === AttendanceStatus.Tugas
+                    disabled={!canEdit}
+                    class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(student.id) === AttendanceStatus.Tugas
                       ? 'bg-purple-600 text-white border-purple-600'
                       : 'bg-white text-gray-700 border-gray-300 hover:bg-purple-50'}"
                   >
@@ -440,7 +504,8 @@
                     id="auto-score-{student.id}"
                     checked={autoScoreRecords.get(student.id) || false}
                     on:change={(e) => toggleAutoScore(student.id, e.currentTarget.checked)}
-                    class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                    disabled={!canEdit}
+                    class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <label for="auto-score-{student.id}" class="ml-2 text-sm font-medium text-gray-700">
                     Auto Score
@@ -460,7 +525,8 @@
                       step="0.5"
                       value={scoreNominalRecords.get(student.id) || ''}
                       on:input={(e) => updateScoreNominal(student.id, parseFloat(e.currentTarget.value) || 0)}
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      disabled={!canEdit}
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100"
                       placeholder="Masukkan nilai..."
                     />
                   </div>
@@ -479,7 +545,7 @@
       <div class="flex justify-end">
         <button
           on:click={saveAttendance}
-          disabled={saving}
+          disabled={saving || !canEdit}
           class="px-6 py-3 text-lg font-semibold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? 'Menyimpan...' : 'Simpan absensi'}
