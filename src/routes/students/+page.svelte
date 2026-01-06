@@ -257,6 +257,26 @@
     }
   }
 
+  function downloadTemplate() {
+    const templateData = [
+      {
+        name: "John Doe",
+        registration_number: "1234567890",
+        gender: "L",
+      },
+      {
+        name: "Jane Smith",
+        registration_number: "0987654321",
+        gender: "P",
+      },
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(templateData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+    XLSX.writeFile(workbook, "template_siswa.xlsx");
+  }
+
   function openAddModal() {
     editingStudent = null;
     formData = {
@@ -832,6 +852,11 @@
             <!-- <li>Alternative column names accepted: nama, nis, nomor_induk, jenis_kelamin</li> -->
             <li>Nomor Induk Siswa (NIS) max 20 karakter</li>
           </ul>
+          <div class="mt-4">
+            <Button on:click={downloadTemplate} variant="outline" size="sm">
+              📥 Download Sample Template
+            </Button>
+          </div>
         </div>
 
         <!-- Classroom Selection -->
