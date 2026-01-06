@@ -189,6 +189,10 @@
             <tr>
               <th
                 class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >No</th
+              >
+              <th
+                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
                 >Nama</th
               >
               <th
@@ -206,8 +210,12 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            {#each classrooms as classroom}
+            {#each classrooms as classroom, i}
               <tr class="hover:bg-gray-50">
+                <td
+                  class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap"
+                  >{i + 1}</td
+                >
                 <td
                   class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap"
                   >{classroom.name}</td

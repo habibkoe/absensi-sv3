@@ -140,7 +140,9 @@
       ).length;
 
       const attendanceRate =
-        totalDays > 0 ? ((presentDays / totalDays) * 100).toFixed(1) : "0";
+        totalDays > 0
+          ? (((presentDays + onDutyDays) / totalDays) * 100).toFixed(1)
+          : "0";
 
       // Calculate average score for Tugas status
       const tugasWithScore = studentAttendance.filter(

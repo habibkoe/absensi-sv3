@@ -489,7 +489,8 @@
                   disabled={!canEdit}
                   class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(
                     student.id,
-                  ) === AttendanceStatus.Hadir
+                  ) === AttendanceStatus.Hadir ||
+                  attendanceRecords.get(student.id) === AttendanceStatus.Tugas
                     ? 'bg-green-600 text-white border-green-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50'}"
                 >

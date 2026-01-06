@@ -593,6 +593,10 @@
             <tr>
               <th
                 class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >No</th
+              >
+              <th
+                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
                 >Photo</th
               >
               <th
@@ -618,8 +622,11 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            {#each filteredStudents as student}
+            {#each filteredStudents as student, i}
               <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                  {i + 1}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   {#if student.photo_url}
                     <img
