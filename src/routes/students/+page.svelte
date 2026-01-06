@@ -1,6 +1,7 @@
 <script lang="ts">
   import Navigation from "$lib/components/Navigation.svelte";
   import Button from "$lib/components/Button.svelte";
+  import Input from "$lib/components/Input.svelte";
   import { supabase } from "$lib/supabaseClient";
   import type { Student, Classroom } from "$lib/types";
   import { onMount } from "svelte";
@@ -522,17 +523,11 @@
       class="grid grid-cols-1 gap-4 p-4 mb-6 bg-white rounded-lg shadow-md md:grid-cols-2"
     >
       <div>
-        <label
-          for="search"
-          class="block mb-2 text-sm font-medium text-gray-700"
-        >
-          Cari berdasarkan nama atau NIS
-        </label>
-        <input
+        <Input
           type="text"
           id="search"
+          label="Cari berdasarkan nama atau NIS"
           bind:value={searchQuery}
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="Search..."
         />
       </div>
@@ -690,7 +685,10 @@
       <form on:submit|preventDefault={handleSubmit} class="space-y-4">
         <!-- Photo Upload -->
         <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700">
+          <label
+            for="photo-upload"
+            class="block mb-2 text-sm font-medium text-gray-700"
+          >
             Student Photo
           </label>
           {#if photoPreview}
@@ -709,6 +707,7 @@
           {/if}
           <input
             type="file"
+            id="photo-upload"
             accept="image/*"
             on:change={handlePhotoChange}
             class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -718,40 +717,24 @@
           </p>
         </div>
 
-        <div>
-          <label
-            for="studentName"
-            class="block mb-2 text-sm font-medium text-gray-700"
-          >
-            Nama Siswa *
-          </label>
-          <input
-            type="text"
-            id="studentName"
-            bind:value={formData.name}
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter student name"
-            required
-          />
-        </div>
+        <Input
+          type="text"
+          id="studentName"
+          label="Nama Siswa *"
+          bind:value={formData.name}
+          placeholder="Enter student name"
+          required
+        />
 
-        <div>
-          <label
-            for="regNumber"
-            class="block mb-2 text-sm font-medium text-gray-700"
-          >
-            NIS * (max 20 digits)
-          </label>
-          <input
-            type="text"
-            id="regNumber"
-            bind:value={formData.registration_number}
-            maxlength="20"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter registration number"
-            required
-          />
-        </div>
+        <Input
+          type="text"
+          id="regNumber"
+          label="NIS * (max 20 digits)"
+          bind:value={formData.registration_number}
+          maxlength="20"
+          placeholder="Enter registration number"
+          required
+        />
 
         <div>
           <label

@@ -1,6 +1,7 @@
 <script lang="ts">
   import Navigation from "$lib/components/Navigation.svelte";
   import Button from "$lib/components/Button.svelte";
+  import Input from "$lib/components/Input.svelte";
   import { supabase } from "$lib/supabaseClient";
   import type { Classroom } from "$lib/types";
   import { onMount } from "svelte";
@@ -255,58 +256,34 @@
       </h2>
 
       <form on:submit|preventDefault={handleSubmit} class="space-y-4">
-        <div>
-          <label
-            for="name"
-            class="block mb-2 text-sm font-medium text-gray-700"
-          >
-            Nama kelas
-          </label>
-          <input
-            type="text"
-            id="name"
-            bind:value={formData.name}
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="e.g., Class A, Grade 10A"
-            required
-          />
-        </div>
+        <Input
+          type="text"
+          id="name"
+          label="Nama kelas"
+          bind:value={formData.name}
+          placeholder="e.g., Class A, Grade 10A"
+          required
+        />
 
         <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label
-              for="start_year"
-              class="block mb-2 text-sm font-medium text-gray-700"
-            >
-              Tahun mulai
-            </label>
-            <input
-              type="number"
-              id="start_year"
-              bind:value={formData.start_year}
-              min="2000"
-              max="2100"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
-          <div>
-            <label
-              for="end_year"
-              class="block mb-2 text-sm font-medium text-gray-700"
-            >
-              Tahun Akhir
-            </label>
-            <input
-              type="number"
-              id="end_year"
-              bind:value={formData.end_year}
-              min="2000"
-              max="2100"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
+          <Input
+            type="number"
+            id="start_year"
+            label="Tahun mulai"
+            bind:value={formData.start_year}
+            min="2000"
+            max="2100"
+            required
+          />
+          <Input
+            type="number"
+            id="end_year"
+            label="Tahun Akhir"
+            bind:value={formData.end_year}
+            min="2000"
+            max="2100"
+            required
+          />
         </div>
 
         {#if error}

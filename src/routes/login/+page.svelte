@@ -3,6 +3,7 @@
 
   import { goto } from "$app/navigation";
   import Button from "$lib/components/Button.svelte";
+  import Input from "$lib/components/Input.svelte";
 
   let email = "";
   let password = "";
@@ -42,36 +43,23 @@
     <h2 class="mb-6 text-xl font-semibold text-center text-gray-600">Login</h2>
 
     <form on:submit|preventDefault={handleLogin} class="space-y-4">
-      <div>
-        <label for="email" class="block mb-2 text-sm font-medium text-gray-700">
-          Email
-        </label>
-        <input
-          type="email"
-          id="email"
-          bind:value={email}
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Enter your email"
-          required
-        />
-      </div>
+      <Input
+        type="email"
+        id="email"
+        label="Email"
+        bind:value={email}
+        placeholder="Enter your email"
+        required
+      />
 
-      <div>
-        <label
-          for="password"
-          class="block mb-2 text-sm font-medium text-gray-700"
-        >
-          Password
-        </label>
-        <input
-          type="password"
-          id="password"
-          bind:value={password}
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Enter your password"
-          required
-        />
-      </div>
+      <Input
+        type="password"
+        id="password"
+        label="Password"
+        bind:value={password}
+        placeholder="Enter your password"
+        required
+      />
 
       {#if error}
         <div

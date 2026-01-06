@@ -1,6 +1,7 @@
 <script lang="ts">
   import Navigation from "$lib/components/Navigation.svelte";
   import Button from "$lib/components/Button.svelte";
+  import Input from "$lib/components/Input.svelte";
   import { supabase } from "$lib/supabaseClient";
   import type { Student, Classroom, Attendance } from "$lib/types";
   import { AttendanceStatus } from "$lib/types";
@@ -361,20 +362,12 @@
           </select>
         </div>
 
-        <div>
-          <label
-            for="date"
-            class="block mb-2 text-sm font-medium text-gray-700"
-          >
-            Tanggal *
-          </label>
-          <input
-            type="date"
-            id="date"
-            bind:value={selectedDate}
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
+        <Input
+          type="date"
+          id="date"
+          label="Tanggal *"
+          bind:value={selectedDate}
+        />
       </div>
     </div>
 
@@ -582,7 +575,10 @@
                     id="auto-score-{student.id}"
                     checked={autoScoreRecords.get(student.id) || false}
                     on:change={(e) =>
-                      toggleAutoScore(student.id, e.currentTarget.checked)}
+                      toggleAutoScore(
+                        student.id,
+                        (e.currentTarget as HTMLInputElement).checked,
+                      )}
                     disabled={!canEdit}
                     class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
@@ -596,26 +592,22 @@
 
                 {#if !autoScoreRecords.get(student.id)}
                   <div>
-                    <label
-                      for="score-{student.id}"
-                      class="block mb-1 text-sm font-medium text-gray-700"
-                    >
-                      Masukkan Nilai (0-100)
-                    </label>
-                    <input
+                    <Input
                       type="number"
                       id="score-{student.id}"
+                      label="Masukkan Nilai (0-100)"
                       min="0"
                       max="100"
                       step="0.5"
                       value={scoreNominalRecords.get(student.id) || ""}
-                      on:input={(e) =>
+                      on:input={(e) => {
+                        const target = e.target as HTMLInputElement;
                         updateScoreNominal(
                           student.id,
-                          parseFloat(e.currentTarget.value) || 0,
-                        )}
+                          parseFloat(target.value) || 0,
+                        );
+                      }}
                       disabled={!canEdit}
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100"
                       placeholder="Masukkan nilai..."
                     />
                   </div>
