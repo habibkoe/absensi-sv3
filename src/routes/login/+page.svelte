@@ -48,7 +48,7 @@
         id="email"
         label="Email"
         bind:value={email}
-        placeholder="Enter your email"
+        placeholder="Masukkan email anda"
         required
       />
 
@@ -57,7 +57,7 @@
         id="password"
         label="Password"
         bind:value={password}
-        placeholder="Enter your password"
+        placeholder="Masukkan password anda"
         required
       />
 

@@ -11,6 +11,7 @@
   let students: Student[] = [];
   let selectedClassroom = "";
   let selectedDate = new Date().toISOString().split("T")[0];
+  let studentFilter = "";
   let attendanceRecords: Map<string, number> = new Map();
   let autoScoreRecords: Map<string, boolean> = new Map();
   let scoreNominalRecords: Map<string, number> = new Map();
@@ -281,6 +282,16 @@
     }
   }
 
+  // Filter students based on search term
+  $: filteredStudents = students.filter((student) => {
+    if (!studentFilter.trim()) return true;
+    const searchTerm = studentFilter.toLowerCase();
+    return (
+      student.name.toLowerCase().includes(searchTerm) ||
+      student.registration_number.toLowerCase().includes(searchTerm)
+    );
+  });
+
   // Check if "Tugas semua" button should be visible
   // Only show if all students are either Hadir or Tugas
   $: canShowTugasSemua = students.every((student) => {
@@ -432,7 +443,7 @@
             disabled={!canEdit}
             variant="warning"
             size="sm"
-            class="bg-orange-600 hover:bg-orange-700 focus:ring-orange-500 text-white"
+            class="text-white bg-orange-600 hover:bg-orange-700 focus:ring-orange-500"
           >
             Bolos semua
           </Button>
@@ -442,7 +453,7 @@
               disabled={!canEdit}
               variant="primary"
               size="sm"
-              class="bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 text-white"
+              class="text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-500"
             >
               Tugas semua
             </Button>
@@ -452,11 +463,54 @@
 
       <!-- Students List -->
       <div class="p-6 mb-6 bg-white rounded-lg shadow-md">
-        <h2 class="mb-4 text-lg font-semibold text-gray-800">
-          Siswa ({students.length})
-        </h2>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-800">
+            Siswa ({filteredStudents.length} dari {students.length})
+          </h2>
+        </div>
+
+        <!-- Student Filter/Search -->
+        <div class="mb-4">
+          <div class="relative">
+            <input
+              type="text"
+              bind:value={studentFilter}
+              placeholder="Cari siswa berdasarkan nama atau nomor registrasi..."
+              class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <svg
+              class="absolute w-5 h-5 text-gray-400 left-3 top-2.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            {#if studentFilter}
+              <button
+                on:click={() => (studentFilter = "")}
+                class="absolute text-gray-400 right-3 top-2.5 hover:text-gray-600"
+                type="button"
+              >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+            {/if}
+          </div>
+        </div>
+
         <div class="space-y-3">
-          {#each students as student}
+          {#each filteredStudents as student}
             <div
               class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
             >
