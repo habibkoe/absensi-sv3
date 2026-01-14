@@ -405,7 +405,7 @@
       </div>
     {:else if selectedClassroom && students.length > 0}
       <!-- Quick Actions -->
-      <div class="p-4 mb-6 bg-white rounded-lg shadow-md">
+      <!-- <div class="p-4 mb-6 bg-white rounded-lg shadow-md">
         <h2 class="mb-3 text-lg font-semibold text-gray-800">Aksi cepat</h2>
         <div class="flex flex-wrap gap-2">
           <Button
@@ -470,7 +470,7 @@
             </Button>
           {/if}
         </div>
-      </div>
+      </div> -->
 
       <!-- Students List -->
       <div class="p-6 mb-6 bg-white rounded-lg shadow-md">
