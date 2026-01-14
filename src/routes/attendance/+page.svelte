@@ -258,6 +258,8 @@
         return "bg-orange-100 text-orange-800 border-orange-300";
       case AttendanceStatus.Tugas:
         return "bg-purple-100 text-purple-800 border-purple-300";
+      case AttendanceStatus.Telat:
+        return "bg-amber-100 text-amber-800 border-amber-300";
       default:
         return "bg-gray-100 text-gray-800 border-gray-300";
     }
@@ -447,6 +449,15 @@
           >
             Bolos semua
           </Button>
+          <Button
+            on:click={() => markAllAs(AttendanceStatus.Telat)}
+            disabled={!canEdit}
+            variant="warning"
+            size="sm"
+            class="text-white bg-amber-600 hover:bg-amber-700 focus:ring-amber-500"
+          >
+            Telat semua
+          </Button>
           {#if canShowTugasSemua}
             <Button
               on:click={() => markAllAs(AttendanceStatus.Tugas)}
@@ -512,9 +523,12 @@
         <div class="space-y-3">
           {#each filteredStudents as student}
             <div
-              class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+              class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
             >
-              <div class="flex items-center space-x-3">
+              <!-- Student Info and Tugas Score (Desktop Layout) -->
+              <div class="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+                <!-- Left: Student Photo and Name -->
+                <div class="flex items-center space-x-3">
                 {#if student.photo_url}
                   <img
                     src={student.photo_url}
@@ -535,8 +549,65 @@
                   </p>
                 </div>
               </div>
+                
+                <!-- Right: Score Input UI for Tugas Status (Desktop only) -->
+                {#if attendanceRecords.get(student.id) === AttendanceStatus.Tugas}
+                  <div class="items-center hidden gap-4 md:flex">
+                    <div class="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="auto-score-{student.id}"
+                        checked={autoScoreRecords.get(student.id) || false}
+                        on:change={(e) =>
+                          toggleAutoScore(
+                            student.id,
+                            (e.currentTarget as HTMLInputElement).checked,
+                          )}
+                        disabled={!canEdit}
+                        class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                      <label
+                        for="auto-score-{student.id}"
+                        class="ml-2 text-sm font-medium text-gray-700"
+                      >
+                        Auto Score
+                      </label>
+                    </div>
 
-              <div class="flex flex-wrap gap-2">
+                    {#if !autoScoreRecords.get(student.id)}
+                      <div class="w-32">
+                        <input
+                          type="number"
+                          id="score-{student.id}-desktop"
+                          min="0"
+                          max="100"
+                          step="0.5"
+                          value={scoreNominalRecords.get(student.id) || ""}
+                          on:input={(e) => {
+                            const target = e.target as HTMLInputElement;
+                            updateScoreNominal(
+                              student.id,
+                              parseFloat(target.value) || 0,
+                            );
+                          }}
+                          disabled={!canEdit}
+                          placeholder="Nilai..."
+                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                        />
+                      </div>
+                    {:else}
+                      <div
+                        class="px-3 py-2 text-sm font-semibold text-purple-900 bg-purple-200 rounded-lg"
+                      >
+                        Nilai: 100
+                      </div>
+                    {/if}
+                  </div>
+                {/if}
+              </div>
+
+              <!-- Attendance Buttons (Below Student Name) -->
+              <div class="flex flex-wrap gap-2 mt-3">
                 <button
                   on:click={() =>
                     setAttendance(student.id, AttendanceStatus.Hadir)}
@@ -548,19 +619,8 @@
                     ? 'bg-green-600 text-white border-green-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50'}"
                 >
-                  Hadir
-                </button>
-                <button
-                  on:click={() =>
-                    setAttendance(student.id, AttendanceStatus.Alpa)}
-                  disabled={!canEdit}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(
-                    student.id,
-                  ) === AttendanceStatus.Alpa
-                    ? 'bg-red-600 text-white border-red-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-red-50'}"
-                >
-                  Alpa
+                  <span class="md:hidden">H</span>
+                  <span class="hidden md:inline">Hadir</span>
                 </button>
                 <button
                   on:click={() =>
@@ -572,7 +632,8 @@
                     ? 'bg-yellow-600 text-white border-yellow-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-yellow-50'}"
                 >
-                  Sakit
+                  <span class="md:hidden">S</span>
+                  <span class="hidden md:inline">Sakit</span>
                 </button>
                 <button
                   on:click={() =>
@@ -584,7 +645,21 @@
                     ? 'bg-blue-600 text-white border-blue-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50'}"
                 >
-                  Izin
+                  <span class="md:hidden">I</span>
+                  <span class="hidden md:inline">Izin</span>
+                </button>
+                <button
+                  on:click={() =>
+                    setAttendance(student.id, AttendanceStatus.Alpa)}
+                  disabled={!canEdit}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(
+                    student.id,
+                  ) === AttendanceStatus.Alpa
+                    ? 'bg-red-600 text-white border-red-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-red-50'}"
+                >
+                  <span class="md:hidden">A</span>
+                  <span class="hidden md:inline">Alpa</span>
                 </button>
                 <button
                   on:click={() =>
@@ -596,7 +671,21 @@
                     ? 'bg-orange-600 text-white border-orange-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-50'}"
                 >
-                  Bolos
+                  <span class="md:hidden">B</span>
+                  <span class="hidden md:inline">Bolos</span>
+                </button>
+                <button
+                  on:click={() =>
+                    setAttendance(student.id, AttendanceStatus.Telat)}
+                  disabled={!canEdit}
+                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(
+                    student.id,
+                  ) === AttendanceStatus.Telat
+                    ? 'bg-amber-600 text-white border-amber-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-amber-50'}"
+                >
+                  <span class="md:hidden">T</span>
+                  <span class="hidden md:inline">Telat</span>
                 </button>
                 {#if attendanceRecords.get(student.id) === AttendanceStatus.Hadir || attendanceRecords.get(student.id) === AttendanceStatus.Tugas}
                   <button
@@ -613,68 +702,68 @@
                   </button>
                 {/if}
               </div>
-            </div>
 
-            <!-- Score Input UI for Tugas Status -->
-            {#if attendanceRecords.get(student.id) === AttendanceStatus.Tugas}
-              <div
-                class="p-4 mt-2 ml-16 border-l-4 border-purple-500 rounded-r-lg bg-purple-50"
-              >
-                <h3 class="mb-3 text-sm font-semibold text-purple-900">
-                  Nilai Tugas
-                </h3>
+              <!-- Score Input UI for Tugas Status (Mobile only - below buttons) -->
+              {#if attendanceRecords.get(student.id) === AttendanceStatus.Tugas}
+                <div
+                  class="p-4 mt-3 border-l-4 border-purple-500 rounded-r-lg bg-purple-50 md:hidden"
+                >
+                  <h3 class="mb-3 text-sm font-semibold text-purple-900">
+                    Nilai Tugas
+                  </h3>
 
-                <div class="flex items-center mb-3">
-                  <input
-                    type="checkbox"
-                    id="auto-score-{student.id}"
-                    checked={autoScoreRecords.get(student.id) || false}
-                    on:change={(e) =>
-                      toggleAutoScore(
-                        student.id,
-                        (e.currentTarget as HTMLInputElement).checked,
-                      )}
-                    disabled={!canEdit}
-                    class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                  <label
-                    for="auto-score-{student.id}"
-                    class="ml-2 text-sm font-medium text-gray-700"
-                  >
-                    Auto Score
-                  </label>
-                </div>
-
-                {#if !autoScoreRecords.get(student.id)}
-                  <div>
-                    <Input
-                      type="number"
-                      id="score-{student.id}"
-                      label="Masukkan Nilai (0-100)"
-                      min="0"
-                      max="100"
-                      step="0.5"
-                      value={scoreNominalRecords.get(student.id) || ""}
-                      on:input={(e) => {
-                        const target = e.target as HTMLInputElement;
-                        updateScoreNominal(
+                  <div class="flex items-center mb-3">
+                    <input
+                      type="checkbox"
+                      id="auto-score-mobile-{student.id}"
+                      checked={autoScoreRecords.get(student.id) || false}
+                      on:change={(e) =>
+                        toggleAutoScore(
                           student.id,
-                          parseFloat(target.value) || 0,
-                        );
-                      }}
+                          (e.currentTarget as HTMLInputElement).checked,
+                        )}
                       disabled={!canEdit}
-                      placeholder="Masukkan nilai..."
+                      class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     />
+                    <label
+                      for="auto-score-mobile-{student.id}"
+                      class="ml-2 text-sm font-medium text-gray-700"
+                    >
+                      Auto Score
+                    </label>
                   </div>
-                {:else}
-                  <div
-                    class="px-3 py-2 text-sm font-semibold text-purple-900 bg-purple-200 rounded-lg"
-                  >
-                    Nilai: 100 (Otomatis)
-                  </div>
-                {/if}
-              </div>
-            {/if}
+
+                  {#if !autoScoreRecords.get(student.id)}
+                    <div>
+                      <Input
+                        type="number"
+                        id="score-{student.id}-mobile"
+                        label="Masukkan Nilai (0-100)"
+                        min="0"
+                        max="100"
+                        step="0.5"
+                        value={scoreNominalRecords.get(student.id) || ""}
+                        on:input={(e) => {
+                          const target = e.target as HTMLInputElement;
+                          updateScoreNominal(
+                            student.id,
+                            parseFloat(target.value) || 0,
+                          );
+                        }}
+                        disabled={!canEdit}
+                        placeholder="Masukkan nilai..."
+                      />
+                    </div>
+                  {:else}
+                    <div
+                      class="px-3 py-2 text-sm font-semibold text-purple-900 bg-purple-200 rounded-lg"
+                    >
+                      Nilai: 100 (Otomatis)
+                    </div>
+                  {/if}
+                </div>
+              {/if}
+            </div>
           {/each}
         </div>
       </div>

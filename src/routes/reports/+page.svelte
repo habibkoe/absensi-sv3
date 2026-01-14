@@ -138,10 +138,13 @@
       const onDutyDays = studentAttendance.filter(
         (a: any) => a.attendance_status === AttendanceStatus.Tugas,
       ).length;
+      const lateDays = studentAttendance.filter(
+        (a: any) => a.attendance_status === AttendanceStatus.Telat,
+      ).length;
 
       const attendanceRate =
         totalDays > 0
-          ? (((presentDays + onDutyDays) / totalDays) * 100).toFixed(1)
+          ? (((presentDays + onDutyDays + lateDays) / totalDays) * 100).toFixed(1)
           : "0";
 
       // Calculate average score for Tugas status
@@ -175,6 +178,7 @@
         Sakit: sickDays,
         Izin: excusedDays,
         Bolos: truantDays,
+        Telat: lateDays,
         Tugas: onDutyDays,
         Nilai: avgScore,
         PersentaseKehadiran: `${attendanceRate}%`,
@@ -237,6 +241,8 @@
         return "Izin (Excused)";
       case AttendanceStatus.Bolos:
         return "Bolos (Truant)";
+      case AttendanceStatus.Telat:
+        return "Telat (Late)";
       case AttendanceStatus.Tugas:
         return "Tugas (On Duty)";
       default:
@@ -519,6 +525,10 @@
                   >
                   <th
                     class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase"
+                    >Telat</th
+                  >
+                  <th
+                    class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase"
                     >Tugas</th
                   >
                   <th
@@ -612,6 +622,10 @@
                     <td
                       class="px-6 py-4 text-sm text-center text-purple-600 whitespace-nowrap"
                       >{row.Bolos}</td
+                    >
+                    <td
+                      class="px-6 py-4 text-sm text-center text-amber-600 whitespace-nowrap"
+                      >{row.Telat}</td
                     >
                     <td
                       class="px-6 py-4 text-sm text-center text-yellow-600 whitespace-nowrap"

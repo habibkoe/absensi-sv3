@@ -46,7 +46,8 @@ export enum AttendanceStatus {
   Sakit = 3,    // Sick
   Izin = 4,     // Excused/Permission
   Bolos = 5,    // Truant/Skip
-  Tugas = 6     // On Assignment/Duty
+  Tugas = 6,    // On Assignment/Duty
+  Telat = 7     // Late
 }
 
 // Form Types
