@@ -299,7 +299,9 @@
   $: canShowTugasSemua = students.every((student) => {
     const status = attendanceRecords.get(student.id);
     return (
-      status === AttendanceStatus.Hadir || status === AttendanceStatus.Tugas
+      status === AttendanceStatus.Hadir ||
+      status === AttendanceStatus.Tugas ||
+      status === AttendanceStatus.Telat
     );
   });
 
@@ -608,98 +610,76 @@
 
               <!-- Attendance Buttons (Below Student Name) -->
               <div class="flex flex-wrap gap-2 mt-3">
-                <button
+                <Button
                   on:click={() =>
                     setAttendance(student.id, AttendanceStatus.Hadir)}
                   disabled={!canEdit}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(
-                    student.id,
-                  ) === AttendanceStatus.Hadir ||
-                  attendanceRecords.get(student.id) === AttendanceStatus.Tugas
-                    ? 'bg-green-600 text-white border-green-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50'}"
+                  size="sm"
+                  variant={attendanceRecords.get(student.id) === AttendanceStatus.Hadir || attendanceRecords.get(student.id) === AttendanceStatus.Tugas ? 'success' : 'outline'}
                 >
                   <span class="md:hidden">H</span>
                   <span class="hidden md:inline">Hadir</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   on:click={() =>
                     setAttendance(student.id, AttendanceStatus.Sakit)}
                   disabled={!canEdit}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(
-                    student.id,
-                  ) === AttendanceStatus.Sakit
-                    ? 'bg-yellow-600 text-white border-yellow-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-yellow-50'}"
+                  size="sm"
+                  variant={attendanceRecords.get(student.id) === AttendanceStatus.Sakit ? 'warning' : 'outline'}
                 >
                   <span class="md:hidden">S</span>
                   <span class="hidden md:inline">Sakit</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   on:click={() =>
                     setAttendance(student.id, AttendanceStatus.Izin)}
                   disabled={!canEdit}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(
-                    student.id,
-                  ) === AttendanceStatus.Izin
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50'}"
+                  size="sm"
+                  variant={attendanceRecords.get(student.id) === AttendanceStatus.Izin ? 'primary' : 'outline'}
                 >
                   <span class="md:hidden">I</span>
                   <span class="hidden md:inline">Izin</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   on:click={() =>
                     setAttendance(student.id, AttendanceStatus.Alpa)}
                   disabled={!canEdit}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(
-                    student.id,
-                  ) === AttendanceStatus.Alpa
-                    ? 'bg-red-600 text-white border-red-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-red-50'}"
+                  size="sm"
+                  variant={attendanceRecords.get(student.id) === AttendanceStatus.Alpa ? 'danger' : 'outline'}
                 >
                   <span class="md:hidden">A</span>
                   <span class="hidden md:inline">Alpa</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   on:click={() =>
                     setAttendance(student.id, AttendanceStatus.Bolos)}
                   disabled={!canEdit}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(
-                    student.id,
-                  ) === AttendanceStatus.Bolos
-                    ? 'bg-orange-600 text-white border-orange-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-50'}"
+                  size="sm"
+                  variant={attendanceRecords.get(student.id) === AttendanceStatus.Bolos ? 'orange' : 'outline'}
                 >
                   <span class="md:hidden">B</span>
                   <span class="hidden md:inline">Bolos</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   on:click={() =>
                     setAttendance(student.id, AttendanceStatus.Telat)}
                   disabled={!canEdit}
-                  class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(
-                    student.id,
-                  ) === AttendanceStatus.Telat
-                    ? 'bg-amber-600 text-white border-amber-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-amber-50'}"
+                  size="sm"
+                  variant={attendanceRecords.get(student.id) === AttendanceStatus.Telat ? 'amber' : 'outline'}
                 >
                   <span class="md:hidden">T</span>
                   <span class="hidden md:inline">Telat</span>
-                </button>
-                {#if attendanceRecords.get(student.id) === AttendanceStatus.Hadir || attendanceRecords.get(student.id) === AttendanceStatus.Tugas}
-                  <button
+                </Button>
+                {#if attendanceRecords.get(student.id) === AttendanceStatus.Hadir || attendanceRecords.get(student.id) === AttendanceStatus.Tugas || attendanceRecords.get(student.id) === AttendanceStatus.Telat}
+                  <Button
                     on:click={() =>
                       setAttendance(student.id, AttendanceStatus.Tugas)}
                     disabled={!canEdit}
-                    class="px-3 py-2 text-sm font-medium transition-colors border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed {attendanceRecords.get(
-                      student.id,
-                    ) === AttendanceStatus.Tugas
-                      ? 'bg-purple-600 text-white border-purple-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-purple-50'}"
+                    size="sm"
+                    variant={attendanceRecords.get(student.id) === AttendanceStatus.Tugas ? 'purple' : 'outline'}
                   >
                     Tugas
-                  </button>
+                  </Button>
                 {/if}
               </div>
 

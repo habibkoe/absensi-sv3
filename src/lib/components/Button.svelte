@@ -9,7 +9,10 @@
         | "info"
         | "ghost"
         | "link"
-        | "outline" = "primary";
+        | "outline"
+        | "purple"
+        | "orange"
+        | "amber" = "primary";
     export let size: "sm" | "md" | "lg" = "md";
     export let width: "full" | "auto" = "auto";
     export let disabled = false;
@@ -35,6 +38,9 @@
         link: "bg-transparent text-blue-600 hover:text-blue-800 hover:underline p-0 h-auto",
         outline:
             "bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500",
+        purple: "bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-500",
+        orange: "bg-orange-600 text-white hover:bg-orange-700 focus:ring-orange-500",
+        amber: "bg-amber-600 text-white hover:bg-amber-700 focus:ring-amber-500",
     };
 
     const sizes = {
