@@ -3,7 +3,7 @@
   import Button from "$lib/components/Button.svelte";
   import Input from "$lib/components/Input.svelte";
   import { supabase } from "$lib/supabaseClient";
-  import type { Student, Classroom, Attendance } from "$lib/types";
+  import type { Student, Classroom, Attendance, Setting } from "$lib/types";
   import { AttendanceStatus } from "$lib/types";
   import { onMount } from "svelte";
 
@@ -15,6 +15,7 @@
   let attendanceRecords: Map<string, number> = new Map();
   let autoScoreRecords: Map<string, boolean> = new Map();
   let scoreNominalRecords: Map<string, number> = new Map();
+  let attendanceTimeLimit = "12:00"; // Default value
   let loading = false;
   let saving = false;
   let error = "";
@@ -36,10 +37,15 @@
       return true;
     }
 
-    // If selected date is today, check if time is before 12:00 PM
+    // If selected date is today, check if time is before the limit
     if (selectedDay.getTime() === today.getTime()) {
+      const [limitHour, limitMinute] = attendanceTimeLimit.split(':').map(Number);
       const currentHour = now.getHours();
-      return currentHour < 12;
+      const currentMinute = now.getMinutes();
+      
+      if (currentHour < limitHour) return true;
+      if (currentHour === limitHour && currentMinute < limitMinute) return true;
+      return false;
     }
 
     // If selected date is in the past, block editing
@@ -63,15 +69,31 @@
     );
 
     if (selectedDay.getTime() === today.getTime()) {
-      return `Waktu edit telah berakhir. Absensi untuk tanggal ${date} sudah final karena telah melewati pukul 12:00.`;
+      return `Waktu edit telah berakhir. Absensi untuk tanggal ${date} sudah final karena telah melewati pukul ${attendanceTimeLimit}.`;
     } else {
       return `Absensi untuk tanggal ${date} sudah final dan tidak dapat diubah.`;
     }
   }
 
   onMount(async () => {
-    await loadClassrooms();
+    await Promise.all([loadClassrooms(), loadSettings()]);
   });
+
+  async function loadSettings() {
+    try {
+      const { data } = await supabase
+        .from("settings")
+        .select("*")
+        .eq("key", "attendance_time_limit")
+        .single();
+      
+      if (data) {
+        attendanceTimeLimit = data.value;
+      }
+    } catch (err) {
+      console.error("Error loading settings:", err);
+    }
+  }
 
   async function loadClassrooms() {
     const { data } = await supabase

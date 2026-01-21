@@ -52,6 +52,12 @@
           >
             Reports
           </a>
+          <a
+            href="/settings"
+            class="px-3 py-2 rounded-lg transition-colors {isActive('/settings') ? 'bg-blue-700' : 'hover:bg-blue-700'}"
+          >
+            Settings
+          </a>
         </div>
       </div>
 
@@ -110,6 +116,13 @@
           on:click={() => (menuOpen = false)}
         >
           Reports
+        </a>
+        <a
+          href="/settings"
+          class="block px-3 py-2 rounded-lg {isActive('/settings') ? 'bg-blue-700' : 'hover:bg-blue-700'}"
+          on:click={() => (menuOpen = false)}
+        >
+          Settings
         </a>
       </div>
     {/if}

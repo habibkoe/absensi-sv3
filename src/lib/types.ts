@@ -30,6 +30,13 @@ export interface Attendance {
   created_at: string;
 }
 
+export interface Setting {
+  key: string;
+  value: string;
+  description: string;
+  updated_at: string;
+}
+
 // Joined Types for queries
 export interface StudentWithClassroom extends Student {
   classroom?: Classroom;
