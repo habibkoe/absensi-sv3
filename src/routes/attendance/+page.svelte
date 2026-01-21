@@ -474,21 +474,21 @@
         </div>
       </div> -->
 
-      <!-- Students List -->
-      <div class="p-6 mb-6 bg-white rounded-lg shadow-md">
-        <div class="flex items-center justify-between mb-4">
+      <!-- Sticky Header: Search & Save -->
+      <div class="sticky top-0 z-10 p-4 mb-6 bg-white border-b border-gray-200 rounded-lg shadow-sm md:flex md:items-center md:justify-between sticky-header backdrop-blur-sm bg-white/95">
+        <div class="flex items-center justify-between mb-4 md:mb-0">
           <h2 class="text-lg font-semibold text-gray-800">
             Siswa ({filteredStudents.length} dari {students.length})
           </h2>
         </div>
 
-        <!-- Student Filter/Search -->
-        <div class="mb-4">
-          <div class="relative">
+        <div class="flex items-center gap-3 md:w-auto w-full">
+           <!-- Student Filter/Search -->
+          <div class="relative flex-1 md:w-64">
             <input
               type="text"
               bind:value={studentFilter}
-              placeholder="Cari siswa berdasarkan nama atau nomor registrasi..."
+              placeholder="Cari siswa..."
               class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <svg
@@ -520,7 +520,33 @@
               </button>
             {/if}
           </div>
+
+          <!-- Save Button (Moved to Top) -->
+          <Button
+            on:click={saveAttendance}
+            disabled={saving || !canEdit}
+            class="flex-shrink-0"
+            {saving}
+          >
+             {#if saving}
+                <span class="md:hidden"><div class="w-5 h-5 border-b-2 border-white rounded-full animate-spin"></div></span>
+                <span class="hidden md:inline">Menyimpan...</span>
+             {:else}
+                <!-- Mobile Icon (Checkmark for Save) -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 md:hidden">
+                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                </svg>
+                
+                <span class="hidden md:inline">Simpan Absensi</span>
+             {/if}
+          </Button>
         </div>
+      </div>
+
+      <!-- Students List -->
+      <div class="p-6 mb-6 bg-white rounded-lg shadow-md">
+        
+        <!-- REMOVED: Old Header and Search currently here -->
 
         <div class="space-y-3">
           {#each filteredStudents as student}
@@ -746,18 +772,6 @@
             </div>
           {/each}
         </div>
-      </div>
-
-      <!-- Save Button -->
-      <div class="flex justify-end">
-        <Button
-          on:click={saveAttendance}
-          disabled={saving || !canEdit}
-          size="lg"
-          {saving}
-        >
-          {saving ? "Menyimpan..." : "Simpan absensi"}
-        </Button>
       </div>
     {:else}
       <div class="p-8 text-center bg-white rounded-lg shadow-md">
