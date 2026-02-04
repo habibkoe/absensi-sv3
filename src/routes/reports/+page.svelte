@@ -121,7 +121,8 @@
 
       const totalDays = studentAttendance.length;
       const presentDays = studentAttendance.filter(
-        (a: any) => a.attendance_status === AttendanceStatus.Hadir,
+        (a: any) => a.attendance_status === AttendanceStatus.Hadir || 
+                    a.attendance_status === AttendanceStatus.Tugas,
       ).length;
       const absentDays = studentAttendance.filter(
         (a: any) => a.attendance_status === AttendanceStatus.Alpa,
@@ -144,7 +145,7 @@
 
       const attendanceRate =
         totalDays > 0
-          ? (((presentDays + onDutyDays + lateDays) / totalDays) * 100).toFixed(1)
+          ? (((presentDays + lateDays) / totalDays) * 100).toFixed(1)
           : "0";
 
       // Calculate average score for Tugas status
