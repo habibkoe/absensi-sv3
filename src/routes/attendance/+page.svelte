@@ -53,7 +53,7 @@
   }
 
   // Reactive variable to check if editing is allowed for the selected date
-  $: canEdit = isEditingAllowed(selectedDate);
+  $: canEdit = attendanceTimeLimit && isEditingAllowed(selectedDate);
 
   // Get appropriate warning message
   $: warningMessage = !canEdit ? getWarningMessage(selectedDate) : "";
@@ -504,7 +504,7 @@
           </h2>
         </div>
 
-        <div class="flex items-center gap-3 md:w-auto w-full">
+        <div class="flex items-center w-full gap-3 md:w-auto">
            <!-- Student Filter/Search -->
           <div class="relative flex-1 md:w-64">
             <input
