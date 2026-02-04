@@ -56,7 +56,7 @@
   $: canEdit = attendanceTimeLimit && isEditingAllowed(selectedDate);
 
   // Get appropriate warning message
-  $: warningMessage = !canEdit ? getWarningMessage(selectedDate) : "";
+  $: warningMessage = attendanceTimeLimit && !canEdit ? getWarningMessage(selectedDate) : "";
 
   function getWarningMessage(date: string): string {
     const now = new Date();
