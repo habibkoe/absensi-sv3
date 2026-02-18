@@ -213,11 +213,20 @@
       const records = students.map((student) => {
         const status =
           attendanceRecords.get(student.id) || AttendanceStatus.Hadir;
+        
+        // Calculate semester based on selectedDate
+        // Semester 1: Jul (6) - Dec (11)
+        // Semester 2: Jan (0) - Jun (5)
+        const dateObj = new Date(selectedDate);
+        const month = dateObj.getMonth();
+        const semester = month >= 6 ? 1 : 2;
+
         const record: any = {
           student_id: student.id,
           class_room_id: selectedClassroom,
           attendance_status: status,
           date: selectedDate,
+          semester: semester,
         };
 
         // Add score data only if status is Tugas

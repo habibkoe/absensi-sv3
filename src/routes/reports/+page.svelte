@@ -13,6 +13,7 @@
   let selectedStudent = "";
   let startDate = "";
   let endDate = "";
+  let selectedSemester = ""; // "" for All, "1" for Semester 1, "2" for Semester 2
   let reportType: "classroom" | "student" = "classroom";
   let reportData: any[] = [];
   let loading = false;
@@ -104,12 +105,18 @@
     if (studentsError) throw studentsError;
 
     // Get attendance records for the date range
-    const { data: attendanceData, error: attendanceError } = await supabase
+    let query = supabase
       .from("attendance")
       .select("*")
       .eq("class_room_id", selectedClassroom)
       .gte("date", startDate)
       .lte("date", endDate);
+
+    if (selectedSemester) {
+      query = query.eq("semester", selectedSemester);
+    }
+
+    const { data: attendanceData, error: attendanceError } = await query;
 
     if (attendanceError) throw attendanceError;
 
@@ -198,12 +205,18 @@
     if (studentError) throw studentError;
 
     // Get attendance records for the date range
-    const { data: attendanceData, error: attendanceError } = await supabase
+    let query = supabase
       .from("attendance")
       .select("*")
       .eq("student_id", selectedStudent)
       .gte("date", startDate)
-      .lte("date", endDate)
+      .lte("date", endDate);
+
+    if (selectedSemester) {
+      query = query.eq("semester", selectedSemester);
+    }
+
+    const { data: attendanceData, error: attendanceError } = await query
       .order("date", { ascending: false });
 
     if (attendanceError) throw attendanceError;
@@ -274,6 +287,7 @@
         ["Ruang Kelas:", classroomName],
         ["Guru:", currentUserName || currentUserEmail || "N/A"],
         ["Periode:", periode],
+        ["Semester:", selectedSemester ? `Semester ${selectedSemester}` : "Semua Semester"],
         [], // blank row
       ];
 
