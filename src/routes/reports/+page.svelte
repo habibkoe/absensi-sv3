@@ -324,7 +324,7 @@
   }
 
   $: startMonth = startDate ? new Date(startDate).getMonth() + 1 : 0;
-  $: detectedSemester = startMonth >= 1 && startMonth <= 6 ? "1" : "2";
+  $: detectedSemester = startMonth > 6 ? "1" : "2";
 </script>
 
 <svelte:head>

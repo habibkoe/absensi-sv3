@@ -219,7 +219,7 @@
         // Semester 2: Jan (0) - Jun (5)
         const dateObj = new Date(selectedDate);
         const month = dateObj.getMonth();
-        const semester = month >= 6 ? 1 : 2;
+        const semester = month > 6 ? 1 : 2;
 
         const record: any = {
           student_id: student.id,
