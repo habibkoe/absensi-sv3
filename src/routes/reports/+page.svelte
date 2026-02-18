@@ -287,7 +287,7 @@
         ["Ruang Kelas:", classroomName],
         ["Guru:", currentUserName || currentUserEmail || "N/A"],
         ["Periode:", periode],
-        ["Semester:", selectedSemester ? `Semester ${selectedSemester}` : "Semua Semester"],
+        ["Semester:", detectedSemester ? `Semester ${detectedSemester}` : "Semua Semester"],
         [], // blank row
       ];
 
@@ -322,6 +322,9 @@
   $: if (selectedClassroom) {
     loadStudents();
   }
+
+  $: startMonth = startDate ? new Date(startDate).getMonth() + 1 : 0;
+  $: detectedSemester = startMonth >= 1 && startMonth <= 6 ? "1" : "2";
 </script>
 
 <svelte:head>
@@ -490,6 +493,7 @@
             Period: {new Date(startDate).toLocaleDateString()} - {new Date(
               endDate,
             ).toLocaleDateString()}
+            <span class="ml-4 font-medium text-gray-800">Semester {detectedSemester}</span>
           </p>
         </div>
 
